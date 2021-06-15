@@ -1,0 +1,39 @@
+{
+  "name": "complex-heart/domain-model",
+  "description": "Domain model toolset to properly build Value Objects, Entities, Aggregates and Services.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Unay Santisteban",
+      "email": "usantisteban@othercode.es"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": "^7.4|^8.0",
+    "ext-json": "*",
+    "ramsey/uuid": "^4.1",
+    "nesbot/carbon": "^2.40",
+    "illuminate/collections": "^8.20",
+    "lambdish/phunctional": "^2.1",
+    "doctrine/instantiator": "^1.4",
+    "complex-heart/contracts": "^0.1.0"
+  },
+  "require-dev": {
+    "mockery/mockery": "^1.4",
+    "phpunit/phpunit": "^9.3",
+    "fakerphp/faker": "^1.9.1",
+    "phpstan/phpstan": "^0.12.64",
+    "pestphp/pest": "^1.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "ComplexHeart\\Domain\\Model\\": "src/"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/pest --configuration=phpunit.xml --coverage-clover=coverage.xml",
+    "analyse": "vendor/bin/phpstan analyse src --no-progress --level=5"
+  }
+}
