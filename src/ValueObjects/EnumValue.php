@@ -84,7 +84,7 @@ abstract class EnumValue extends Value
      */
     public static function getLabels(): array
     {
-        return array_keys(static::cache());
+        return array_keys(self::cache());
     }
 
     /**
@@ -94,7 +94,7 @@ abstract class EnumValue extends Value
      */
     public static function getValues(): array
     {
-        return array_values(static::cache());
+        return array_values(self::cache());
     }
 
     /**
