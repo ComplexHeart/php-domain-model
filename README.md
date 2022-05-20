@@ -1,7 +1,8 @@
 # Domain Model
 
 [![Tests](https://github.com/ComplexHeart/php-domain-model/actions/workflows/test.yml/badge.svg)](https://github.com/ComplexHeart/php-domain-model/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/ComplexHeart/php-domain-model/branch/main/graph/badge.svg?token=MFBVoMPYwi)](https://codecov.io/gh/ComplexHeart/php-domain-model)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ComplexHeart_php-domain-model&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ComplexHeart_php-domain-model)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ComplexHeart_php-domain-model&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ComplexHeart_php-domain-model)
 
 ## Modeling Aggregates, Entities and Value Objects
 
