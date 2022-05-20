@@ -138,6 +138,7 @@ class TypedCollection extends Collection
      *
      * @throws InvariantViolation
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($key, $value)
     {
         if ($this->keyType !== 'mixed') {
