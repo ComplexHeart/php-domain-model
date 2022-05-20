@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model;
 
-use  Illuminate\Support\Collection;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
+use ComplexHeart\Domain\Model\Traits\HasTypeCheck;
 use ComplexHeart\Domain\Model\Traits\HasInvariants;
+use Illuminate\Support\Collection;
 
 /**
  * Class TypedCollection
@@ -17,6 +18,7 @@ use ComplexHeart\Domain\Model\Traits\HasInvariants;
 class TypedCollection extends Collection
 {
     use HasInvariants;
+    use HasTypeCheck;
 
     /**
      * The type of each key in the collection.
@@ -44,26 +46,67 @@ class TypedCollection extends Collection
     }
 
     /**
-     * Invariant: All items must be of the same type.
+     * Assert that the key type is compliant with the collection definition.
      *
-     * - If $typeOf is primitive check the type with gettype().
-     * - If $typeOf is a class, check if the item is an instance of it.
+     * @param  mixed  $key
+     *
+     * @throws InvariantViolation
+     */
+    protected function checkKeyType($key): void
+    {
+        $supported = ['string', 'integer'];
+        if (!in_array($this->keyType, $supported)) {
+            throw new InvariantViolation(
+                "Unsupported key type $this->keyType, must be one of ".implode(', ', $supported)
+            );
+        }
+
+        if ($this->isValueTypeNotValid($key, $this->keyType)) {
+            throw new InvariantViolation("All keys in the collection must be type of $this->keyType");
+        }
+    }
+
+    /**
+     * Assert that the item type is compliant with the collection definition.
+     *
+     * @param  mixed  $item
+     *
+     * @throws InvariantViolation
+     */
+    protected function checkValueType($item): void
+    {
+        if ($this->isValueTypeNotValid($item, $this->valueType)) {
+            throw new InvariantViolation("All items in the collection must be type of $this->valueType");
+        }
+    }
+
+    /**
+     * Check the keys and values of the collection to match the required type.
+     *
+     * Supported types for keys:
+     *  - string
+     *  - integer
+     *
+     * Values can have any type:
+     * - If $type is primitive check the type with gettype().
+     * - If $type is a class, check if the item is an instance of it.
      *
      * @return bool
      * @throws InvariantViolation
      */
-    protected function invariantItemsMustMatchTheRequiredType(): bool
+    protected function invariantKeysAndValuesMustMatchTheRequiredType(): bool
     {
-        if ($this->valueType !== 'mixed') {
-            $primitives = ['integer', 'boolean', 'float', 'string', 'array', 'object', 'callable'];
-            $check = in_array($this->valueType, $primitives)
-                ? fn($value): bool => gettype($value) !== $this->valueType
-                : fn($value): bool => !($value instanceof $this->valueType);
+        if ($this->keyType === 'mixed' && $this->valueType === 'mixed') {
+            return true;
+        }
 
-            foreach ($this->items as $item) {
-                if ($check($item)) {
-                    throw new InvariantViolation("All items must be type of {$this->valueType}");
-                }
+        foreach ($this->items as $key => $item) {
+            if ($this->keyType !== 'mixed') {
+                $this->checkKeyType($key);
+            }
+
+            if ($this->valueType !== 'mixed') {
+                $this->checkValueType($item);
             }
         }
 
@@ -71,31 +114,97 @@ class TypedCollection extends Collection
     }
 
     /**
-     * Invariant: Check the collection keys to match the required type.
+     * Push one or more items onto the end of the collection.
      *
-     * Supported types:
-     *  - string
-     *  - integer
+     * @param  mixed  $values  [optional]
      *
-     * @return bool
+     * @return static
      * @throws InvariantViolation
      */
-    protected function invariantKeysMustMatchTheRequiredType(): bool
+    public function push(...$values)
+    {
+        foreach ($values as $value) {
+            $this->checkValueType($value);
+        }
+
+        return parent::push(...$values);
+    }
+
+    /**
+     * Offset to set.
+     *
+     * @param  mixed  $key
+     * @param  mixed  $value
+     *
+     * @throws InvariantViolation
+     */
+    #[\ReturnTypeWillChange]
+    public function offsetSet($key, $value)
     {
         if ($this->keyType !== 'mixed') {
-            $supported = ['string', 'integer'];
-            if (!in_array($this->keyType, $supported)) {
-                throw new InvariantViolation(
-                    "Unsupported key type, must be one of ".implode(', ', $supported)
-                );
-            }
-
-            foreach ($this->items as $index => $item) {
-                if (gettype($index) !== $this->keyType) {
-                    throw new InvariantViolation("All keys must be type of {$this->keyType}");
-                }
-            }
+            $this->checkKeyType($key);
         }
-        return true;
+
+        $this->checkValueType($value);
+
+        parent::offsetSet($key, $value);
+    }
+
+    /**
+     * Push an item onto the beginning of the collection.
+     *
+     * @param  mixed  $value
+     * @param  null  $key
+     *
+     * @return static
+     * @throws InvariantViolation
+     */
+    public function prepend($value, $key = null)
+    {
+        if ($this->keyType !== 'mixed') {
+            $this->checkKeyType($key);
+        }
+
+        $this->checkValueType($value);
+
+        return parent::prepend($value, $key);
+    }
+
+    /**
+     * Add an item to the collection.
+     *
+     * @param  mixed  $item
+     *
+     * @return static
+     * @throws InvariantViolation
+     */
+    public function add($item)
+    {
+        $this->checkValueType($item);
+
+        return parent::add($item);
+    }
+
+    /**
+     * Get the values of a given key.
+     *
+     * @param  string|array|int|null  $value
+     * @param  string|null  $key
+     *
+     * @return Collection
+     */
+    public function pluck($value, $key = null)
+    {
+        return $this->toBase()->pluck($value, $key);
+    }
+
+    /**
+     * Get the keys of the collection items.
+     *
+     * @return Collection
+     */
+    public function keys(): Collection
+    {
+        return $this->toBase()->keys();
     }
 }
