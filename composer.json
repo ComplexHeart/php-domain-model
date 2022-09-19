@@ -11,14 +11,14 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "php": "^7.4|^8.0",
+    "php": "^8.0",
     "ext-json": "*",
     "ramsey/uuid": "^4.1",
     "nesbot/carbon": "^2.40",
     "illuminate/collections": "^8.20",
     "lambdish/phunctional": "^2.1",
     "doctrine/instantiator": "^1.4",
-    "complex-heart/contracts": "^0.1.0"
+    "complex-heart/contracts": "^1.0.0"
   },
   "require-dev": {
     "mockery/mockery": "^1.4",
