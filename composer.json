@@ -15,7 +15,7 @@
     "ext-json": "*",
     "ramsey/uuid": "^4.1",
     "nesbot/carbon": "^2.40",
-    "illuminate/collections": "^8.20",
+    "illuminate/collections": "^9.0.0",
     "lambdish/phunctional": "^2.1",
     "doctrine/instantiator": "^1.4",
     "complex-heart/contracts": "^1.0.0"
