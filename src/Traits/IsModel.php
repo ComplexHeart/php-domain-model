@@ -22,7 +22,7 @@ trait IsModel
     /**
      * Initialize the Model. Just as the constructor will do.
      *
-     * @param  array<string, mixed>  $source
+     * @param  array<int|string, mixed>  $source
      * @param  callable|null  $onFail
      *
      * @return static
@@ -76,7 +76,7 @@ trait IsModel
     final protected function mapSource(array $source): array
     {
         // check if the array is indexed or associative.
-        $isIndexed = fn($source): bool => !([] === $source) && array_keys($source) === range(0, count($source) - 1);
+        $isIndexed = fn($source): bool => ([] !== $source) && array_keys($source) === range(0, count($source) - 1);
 
         return $isIndexed($source)
             // combine the attributes keys with the provided source values.
