@@ -24,7 +24,7 @@ trait HasAttributes
     {
         return array_filter(
             array_keys(get_class_vars(static::class)),
-            fn(string $item): bool => strpos($item, '_') !== 0
+            fn(string $item): bool => !str_starts_with($item, '_')
         );
     }
 
@@ -63,7 +63,7 @@ trait HasAttributes
      *
      * @return mixed|null
      */
-    final protected function get(string $attribute)
+    final protected function get(string $attribute): mixed
     {
         if (in_array($attribute, static::attributes())) {
             $method = $this->getStringKey($attribute, 'get', 'Value');
@@ -82,7 +82,7 @@ trait HasAttributes
      * @param  string  $attribute
      * @param  mixed  $value
      */
-    final protected function set(string $attribute, $value): void
+    final protected function set(string $attribute, mixed $value): void
     {
         if (in_array($attribute, $this->attributes())) {
             $method = $this->getStringKey($attribute, 'set', 'Value');

@@ -31,7 +31,7 @@ trait IsAggregate
      *
      * @return static
      */
-    protected function withOverrides(array $overrides)
+    protected function withOverrides(array $overrides): static
     {
         $new = $this->overrideEntity($overrides);
 

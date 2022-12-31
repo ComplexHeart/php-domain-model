@@ -46,5 +46,5 @@ trait HasEquality
      *
      * @return string
      */
-    abstract function __toString();
+    abstract function __toString(): string;
 }

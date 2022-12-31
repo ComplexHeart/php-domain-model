@@ -43,11 +43,11 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
     protected int $_maxItems = 0;
 
     /**
-     * The type of each items in the array.
+     * The type of each item in the array.
      *
      * @var string
      */
-    protected string $valueType = 'mixed';
+    protected string $_valueType = 'mixed';
 
     /**
      * ArrayValue constructor.
@@ -88,15 +88,15 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
      */
     protected function invariantItemsMustMatchTheRequiredType(): bool
     {
-        if ($this->valueType !== 'mixed') {
+        if ($this->_valueType !== 'mixed') {
             $primitives = ['integer', 'boolean', 'float', 'string', 'array', 'object', 'callable'];
-            $check = in_array($this->valueType, $primitives)
-                ? fn($value): bool => gettype($value) !== $this->valueType
-                : fn($value): bool => !($value instanceof $this->valueType);
+            $check = in_array($this->_valueType, $primitives)
+                ? fn($value): bool => gettype($value) !== $this->_valueType
+                : fn($value): bool => !($value instanceof $this->_valueType);
 
             foreach ($this->value as $item) {
                 if ($check($item)) {
-                    throw new InvariantViolation("All items must be type of $this->valueType");
+                    throw new InvariantViolation("All items must be type of $this->_valueType");
                 }
             }
         }
@@ -133,12 +133,12 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
     }
 
     /**
-     * Whether a offset exists.
+     * Whether offset exists.
      *
      * @param  mixed  $offset
      * @return bool
      */
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
         return isset($this->value[$offset]);
     }
@@ -149,7 +149,7 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
      * @param  mixed  $offset
      * @return mixed|null
      */
-    public function offsetGet($offset): mixed
+    public function offsetGet(mixed $offset): mixed
     {
         return $this->offsetExists($offset)
             ? $this->value[$offset]
@@ -162,7 +162,7 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
      * @param  mixed  $offset
      * @param  mixed  $value
      */
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         throw new ImmutableException("Illegal attempt of change immutable value on offset $offset");
     }
@@ -172,7 +172,7 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
      *
      * @param  mixed  $offset
      */
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
         throw new ImmutableException("Illegal attempt of unset immutable value on offset $offset");
     }
@@ -187,14 +187,24 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
         return serialize($this->value);
     }
 
+    public function __serialize(): array
+    {
+        return $this->values();
+    }
+
     /**
      * Constructs the object.
      *
      * @param  string  $data
      */
-    public function unserialize($data): void
+    public function unserialize(string $data): void
     {
         $this->value = unserialize($data);
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->initialize($data);
     }
 
     /**

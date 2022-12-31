@@ -7,12 +7,12 @@ namespace ComplexHeart\Domain\Model\Exceptions;
 use RuntimeException;
 
 /**
- * Class ImmutableException
+ * Class InstantiationException
  *
  * @author Unay Santisteban <usantisteban@othercode.es>
  * @package ComplexHeart\Domain\Model\Exceptions
  */
-class ImmutableException extends RuntimeException
+class InstantiationException extends RuntimeException
 {
 
 }
