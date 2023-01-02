@@ -20,7 +20,7 @@ trait HasTypeCheck
      *
      * @return bool
      */
-    protected function isValueTypeValid($value, string $validType): bool
+    protected function isValueTypeValid(mixed $value, string $validType): bool
     {
         if ($validType === 'mixed') {
             return true;
@@ -42,7 +42,7 @@ trait HasTypeCheck
      *
      * @return bool
      */
-    protected function isValueTypeNotValid($value, string $validType): bool
+    protected function isValueTypeNotValid(mixed $value, string $validType): bool
     {
         return !$this->isValueTypeValid($value, $validType);
     }

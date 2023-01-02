@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Traits;
 
+use ComplexHeart\Domain\Model\Exceptions\InstantiationException;
 use RuntimeException;
 use Doctrine\Instantiator\Instantiator;
 use Doctrine\Instantiator\Exception\ExceptionInterface;
@@ -27,7 +28,7 @@ trait IsModel
      *
      * @return static
      */
-    protected function initialize(array $source, callable $onFail = null)
+    protected function initialize(array $source, callable $onFail = null): static
     {
         $this->hydrate($this->mapSource($source));
         $this->check($onFail);
@@ -42,14 +43,14 @@ trait IsModel
      *
      * @throws RuntimeException
      */
-    final public static function make()
+    final public static function make(): static
     {
         try {
             return (new Instantiator())
                 ->instantiate(static::class)
                 ->initialize(func_get_args());
         } catch (ExceptionInterface $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
+            throw new InstantiationException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -60,7 +61,7 @@ trait IsModel
      *
      * @return static
      */
-    protected function withOverrides(array $overrides)
+    protected function withOverrides(array $overrides): static
     {
         return self::make(...array_values(array_merge($this->values(), $overrides)));
     }

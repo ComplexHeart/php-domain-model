@@ -52,7 +52,7 @@ class TypedCollection extends Collection
      *
      * @throws InvariantViolation
      */
-    protected function checkKeyType($key): void
+    protected function checkKeyType(mixed $key): void
     {
         $supported = ['string', 'integer'];
         if (!in_array($this->keyType, $supported)) {
@@ -73,7 +73,7 @@ class TypedCollection extends Collection
      *
      * @throws InvariantViolation
      */
-    protected function checkValueType($item): void
+    protected function checkValueType(mixed $item): void
     {
         if ($this->isValueTypeNotValid($item, $this->valueType)) {
             throw new InvariantViolation("All items in the collection must be type of $this->valueType");
@@ -121,7 +121,7 @@ class TypedCollection extends Collection
      * @return static
      * @throws InvariantViolation
      */
-    public function push(...$values)
+    public function push(...$values): static
     {
         foreach ($values as $value) {
             $this->checkValueType($value);
@@ -138,7 +138,7 @@ class TypedCollection extends Collection
      *
      * @throws InvariantViolation
      */
-    public function offsetSet($key, $value): void
+    public function offsetSet(mixed $key, mixed $value): void
     {
         if ($this->keyType !== 'mixed') {
             $this->checkKeyType($key);
@@ -158,7 +158,7 @@ class TypedCollection extends Collection
      * @return static
      * @throws InvariantViolation
      */
-    public function prepend($value, $key = null)
+    public function prepend($value, $key = null): static
     {
         if ($this->keyType !== 'mixed') {
             $this->checkKeyType($key);
@@ -177,7 +177,7 @@ class TypedCollection extends Collection
      * @return static
      * @throws InvariantViolation
      */
-    public function add($item)
+    public function add(mixed $item): static
     {
         $this->checkValueType($item);
 
@@ -192,7 +192,7 @@ class TypedCollection extends Collection
      *
      * @return Collection
      */
-    public function pluck($value, $key = null)
+    public function pluck($value, $key = null): Collection
     {
         return $this->toBase()->pluck($value, $key);
     }

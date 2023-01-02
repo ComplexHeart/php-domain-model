@@ -21,7 +21,7 @@ abstract class EnumValue extends Value
      *
      * @var mixed
      */
-    protected $value;
+    protected mixed $value;
 
     /**
      * Internal cache.
@@ -35,7 +35,7 @@ abstract class EnumValue extends Value
      *
      * @param  mixed  $value
      */
-    public function __construct($value)
+    public function __construct(mixed $value)
     {
         $this->initialize(['value' => $value]);
     }
@@ -72,7 +72,7 @@ abstract class EnumValue extends Value
      *
      * @return bool
      */
-    public static function isValid($value): bool
+    public static function isValid(mixed $value): bool
     {
         return in_array($value, static::getValues(), true);
     }

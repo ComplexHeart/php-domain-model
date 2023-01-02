@@ -10,8 +10,6 @@ use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
 /**
  * Class StringValue
  *
- * @method string value()
- *
  * @author Unay Santisteban <usantisteban@othercode.es>
  * @package ComplexHeart\Domain\Model\ValueObjects
  */
@@ -66,7 +64,7 @@ abstract class StringValue extends Value
         $length = strlen($this->value);
         if ($this->_minLength > 0 && $length < $this->_minLength) {
             throw new InvariantViolation(
-                "Min length {$this->_minLength} is required, given {$length}"
+                "Min length $this->_minLength is required, given {$length}"
             );
         }
 
@@ -84,7 +82,7 @@ abstract class StringValue extends Value
         $length = strlen($this->value);
         if ($this->_maxLength > 0 && $length > $this->_maxLength) {
             throw new InvariantViolation(
-                "Max length {$this->_maxLength} exceeded, given {$length}"
+                "Max length $this->_maxLength exceeded, given {$length}"
             );
         }
 
@@ -102,11 +100,21 @@ abstract class StringValue extends Value
             && preg_match($this->_pattern, $this->value) !== 1
         ) {
             throw new InvalidArgumentException(
-                "Invalid value, does not match pattern {$this->_pattern}"
+                "Invalid value, $this->value does not match pattern {$this->_pattern}"
             );
         }
 
         return true;
+    }
+
+    /**
+     * Returns the actual string value.
+     *
+     * @return string
+     */
+    public function value(): string
+    {
+        return $this->value;
     }
 
     /**

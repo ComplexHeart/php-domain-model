@@ -1,3 +1,13 @@
+# Value Objects
+
+> A small simple object, like money or a date range, whose equality isn't based on identity.\
+> -- Martin Fowler
+
+Creating a Value Object is quite easy you only need to use the Trait `IsValueObject` this will
+add the `HasAttributes`, `HasInvariants` and the `HasEquality` Traits. In addition, you could
+use the `ValueObject` interface to expose the `values` and `equals` methods.
+
+The following example illustrates the implementation of these components.
 
 ```php
 use ComplexHeart\Contracts\Domain\Model\ValueObject;

@@ -1,18 +1,16 @@
 name: Documentation
 
 on:
-  pull_request:
-    types: [ closed ]
+  push:
+    branches: [ 'main' ]
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        php-version:
-          - "7.4"
+        php-version: [ '8.1' ]
 
     steps:
       - name: Checkout source code
@@ -39,7 +37,7 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-      - name: Pusblish documentation to Wiki
+      - name: Publish documentation to Wiki
         uses: SwiftDocOrg/github-wiki-publish-action@v1
         with:
           path: "wiki/"

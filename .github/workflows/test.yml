@@ -2,10 +2,9 @@ name: Test
 
 on:
   push:
-    branches:
-      - main
+    branches: [ 'main' ]
   pull_request:
-    types: [ opened, synchronize, reopened ]
+    types: [ 'opened', 'synchronize', 'reopened' ]
 
 jobs:
   test:
@@ -13,11 +12,13 @@ jobs:
 
     strategy:
       matrix:
-        php-version: [ "8.0", "8.1" ]
+        php-version: [ '8.1' ]
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Set up PHP ${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2
@@ -36,8 +37,9 @@ jobs:
       - name: Validate composer.json and composer.lock
         run: composer validate
 
-      - name: Install Dependencies
-        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Install dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Execute Static Code analysis
         run: composer analyse

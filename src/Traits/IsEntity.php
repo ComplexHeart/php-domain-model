@@ -36,7 +36,7 @@ trait IsEntity
      *
      * @return static
      */
-    protected function withOverrides(array $overrides)
+    protected function withOverrides(array $overrides): static
     {
         return $this->overrideAttributes(
             filter(fn($value, string $key): bool => $key !== 'id', $overrides)

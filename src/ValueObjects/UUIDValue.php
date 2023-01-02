@@ -69,7 +69,7 @@ class UUIDValue extends Value implements Identifier
     }
 
     /**
-     * Check if the given identifier is the same than the current one.
+     * Check if the given identifier is the same as the current one.
      *
      * @param  Identifier  $other
      *

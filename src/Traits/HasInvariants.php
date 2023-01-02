@@ -24,7 +24,7 @@ trait HasInvariants
     {
         $invariants = [];
         foreach (get_class_methods(static::class) as $invariant) {
-            if (strpos($invariant, 'invariant') === 0 && $invariant !== 'invariants') {
+            if (str_starts_with($invariant, 'invariant') && $invariant !== 'invariants') {
                 $invariants[$invariant] = str_replace(
                     'invariant ',
                     '',
@@ -52,7 +52,7 @@ trait HasInvariants
      *
      * If exception is thrown the error message will be the exception message.
      *
-     * $onFail function must have following signature:
+     * $onFail function must have the following signature:
      *  fn(array<string, string>) => void
      *
      * @param  callable|null  $onFail
@@ -74,7 +74,7 @@ trait HasInvariants
             }
         }
 
-        if (count($violations) > 0) {
+        if (!empty($violations)) {
             if (is_null($onFail)) {
                 $customizedHandler = function (array $violations) use ($handler): void {
                     call_user_func_array([$this, $handler], [$violations]);
