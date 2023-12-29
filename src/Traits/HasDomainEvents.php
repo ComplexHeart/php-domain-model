@@ -12,7 +12,7 @@ use ComplexHeart\Contracts\Domain\ServiceBus\EventBus;
  *
  * @see https://martinfowler.com/eaaDev/DomainEvent.html
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Traits
  */
 trait HasDomainEvents

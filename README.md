@@ -14,8 +14,7 @@ the functionality you need without compromising the essence of your own domain.
 Let's see a very basic example:
 
 ```php
-use ComplexHeart\Contracts\Domain\Model\ValueObject;
-use ComplexHeart\Domain\Model\Traits\IsValueObject;
+use ComplexHeart\Contracts\Domain\Model\ValueObject;use ComplexHeart\Domain\Model\IsValueObject;
 
 /**
  * Class Color

@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-namespace ComplexHeart\Domain\Model\Test\Sample\Models;
+namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain;
 
 
 use ComplexHeart\Contracts\Domain\Model\ValueObject;
-use ComplexHeart\Domain\Model\Traits\IsValueObject;
+use ComplexHeart\Domain\Model\IsValueObject;
 
 /**
  * Class OrderLine
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
- * @package ComplexHeart\Domain\Model\Test\Sample\Models
+ * @author Unay Santisteban <usantisteban@othercode.io>
+ * @package ComplexHeart\Domain\Model\Test\OrderManagement\Models
  */
 final class OrderLine implements ValueObject
 {
     use IsValueObject;
 
-    public readonly string $concept; // @phpstan-ignore-line
+    public string $concept;
 
-    public readonly int $quantity; // @phpstan-ignore-line
+    public int $quantity;
 
     public function __construct(string $concept, int $quantity)
     {

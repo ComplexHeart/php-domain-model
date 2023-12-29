@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace ComplexHeart\Domain\Model\Test\Sample\Models;
+namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain;
 
 use ComplexHeart\Domain\Model\TypedCollection;
 
 /**
  * Class LineItems
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
- * @package ComplexHeart\Domain\Model\Test\Sample\Models
+ * @author Unay Santisteban <usantisteban@othercode.io>
+ * @package ComplexHeart\Domain\Model\Test\OrderManagement\Models
  */
 final class OrderLines extends TypedCollection
 {

@@ -9,7 +9,7 @@ namespace ComplexHeart\Domain\Model\ValueObjects;
  *
  * @method bool value()
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\ValueObjects
  */
 abstract class BooleanValue extends Value

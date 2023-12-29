@@ -11,7 +11,7 @@ use Ramsey\Uuid\Uuid;
 /**
  * Class UUIDValue
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\ValueObjects
  */
 class UUIDValue extends Value implements Identifier

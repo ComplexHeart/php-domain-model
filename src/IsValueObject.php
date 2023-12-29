@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ComplexHeart\Domain\Model\Traits;
+namespace ComplexHeart\Domain\Model;
+
+use ComplexHeart\Domain\Model\Traits\HasEquality;
+use ComplexHeart\Domain\Model\Traits\HasImmutability;
 
 /**
  * Trait IsValueObject
@@ -14,13 +17,14 @@ namespace ComplexHeart\Domain\Model\Traits;
  * @see https://martinfowler.com/bliki/ValueObject.html
  * @see https://martinfowler.com/bliki/EvansClassification.html
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Traits
  */
 trait IsValueObject
 {
     use IsModel;
     use HasEquality;
+    use HasImmutability;
 
     /**
      * Represents the object as String.

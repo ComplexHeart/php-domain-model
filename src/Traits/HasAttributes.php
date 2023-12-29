@@ -9,7 +9,7 @@ use function Lambdish\Phunctional\map;
 /**
  * Trait HasAttributes
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Traits
  */
 trait HasAttributes
@@ -133,11 +133,11 @@ trait HasAttributes
      *  $user->name() will access the private attribute name.
      *
      * @param  string  $attribute
-     * @param  array  $values
-     *
+     * @param  array  $_
      * @return mixed|null
+     * @deprecated will be removed in version 3.0
      */
-    public function __call(string $attribute, array $values)
+    public function __call(string $attribute, array $_): mixed
     {
         return $this->get($attribute);
     }

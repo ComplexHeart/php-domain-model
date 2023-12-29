@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Traits;
 
-
-
 use ComplexHeart\Contracts\Domain\Model\Identifier;
 
 /**
  * Trait HasIdentity
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Traits
  */
 trait HasIdentity

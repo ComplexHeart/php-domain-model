@@ -11,7 +11,7 @@ use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
  *
  * @method int value()
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\ValueObjects
  */
 abstract class IntegerValue extends Value

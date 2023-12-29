@@ -7,7 +7,7 @@ namespace ComplexHeart\Domain\Model\Traits;
 /**
  * Trait HasTypeValidation
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Traits
  */
 trait HasTypeCheck

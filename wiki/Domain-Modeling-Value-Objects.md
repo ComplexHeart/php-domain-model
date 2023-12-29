@@ -10,8 +10,7 @@ use the `ValueObject` interface to expose the `values` and `equals` methods.
 The following example illustrates the implementation of these components.
 
 ```php
-use ComplexHeart\Contracts\Domain\Model\ValueObject;
-use ComplexHeart\Domain\Model\Traits\IsValueObject;
+use ComplexHeart\Contracts\Domain\Model\ValueObject;use ComplexHeart\Domain\Model\IsValueObject;
 
 /**
  * Class Color
