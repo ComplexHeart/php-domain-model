@@ -13,7 +13,7 @@ use Exception;
 /**
  * Class DateTimeValue
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\ValueObjects
  */
 class DateTimeValue extends CarbonImmutable implements ValueObject

@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace ComplexHeart\Domain\Model\Test\Sample\Models;
+namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain;
 
 use ComplexHeart\Contracts\Domain\Model\Identifier;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
-use ComplexHeart\Domain\Model\ValueObjects\StringValue;
 use ComplexHeart\Domain\Model\ValueObjects\DateTimeValue as Timestamp;
+use ComplexHeart\Domain\Model\ValueObjects\StringValue;
 
 /**
  * Class Reference
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
- * @package ComplexHeart\Domain\Model\Test\Sample\Models
+ * @author Unay Santisteban <usantisteban@othercode.io>
+ * @package ComplexHeart\Domain\Model\Test\OrderManagement\Models
  */
 final class Reference extends StringValue implements Identifier
 {

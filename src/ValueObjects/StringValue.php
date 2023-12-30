@@ -10,7 +10,7 @@ use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
 /**
  * Class StringValue
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\ValueObjects
  */
 abstract class StringValue extends Value

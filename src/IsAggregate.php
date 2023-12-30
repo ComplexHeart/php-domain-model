@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace ComplexHeart\Domain\Model\Traits;
+namespace ComplexHeart\Domain\Model;
+
+use ComplexHeart\Domain\Model\Traits\HasDomainEvents;
 
 /**
  * Trait IsAggregate
@@ -13,34 +15,13 @@ namespace ComplexHeart\Domain\Model\Traits;
  * @see https://martinfowler.com/bliki/DDD_Aggregate.html
  * @see https://martinfowler.com/bliki/EvansClassification.html
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Traits
  */
 trait IsAggregate
 {
     use HasDomainEvents;
-    use IsEntity {
-        withOverrides as private overrideEntity;
-    }
-
-    /**
-     * Creates a new instance overriding the given attributes and
-     * propagating the domain events to the new instance.
-     *
-     * @param  array<string, mixed>  $overrides
-     *
-     * @return static
-     */
-    protected function withOverrides(array $overrides): static
-    {
-        $new = $this->overrideEntity($overrides);
-
-        foreach ($this->_domainEvents as $event) {
-            $new->registerDomainEvent($event);
-        }
-
-        return $new;
-    }
+    use IsEntity;
 
     /**
      * This method is called by var_dump() when dumping an object to

@@ -10,7 +10,7 @@ use Exception;
 /**
  * Trait HasInvariants
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Traits
  */
 trait HasInvariants
@@ -24,7 +24,7 @@ trait HasInvariants
     {
         $invariants = [];
         foreach (get_class_methods(static::class) as $invariant) {
-            if (str_starts_with($invariant, 'invariant') && $invariant !== 'invariants') {
+            if (str_starts_with($invariant, 'invariant') && !in_array($invariant, ['invariants', 'invariantHandler'])) {
                 $invariants[$invariant] = str_replace(
                     'invariant ',
                     '',

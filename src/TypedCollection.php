@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 /**
  * Class TypedCollection
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Domain
  */
 class TypedCollection extends Collection

@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use ComplexHeart\Domain\Model\Exceptions\ImmutableException;
+use ComplexHeart\Domain\Model\Errors\ImmutabilityError;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
-use ComplexHeart\Domain\Model\Test\Sample\Models\Reference;
-use ComplexHeart\Domain\Model\Test\Sample\Models\SampleList;
+use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Reference;
+use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Tags;
 use ComplexHeart\Domain\Model\ValueObjects\ArrayValue;
+use ComplexHeart\Domain\Model\ValueObjects\BooleanValue;
 use ComplexHeart\Domain\Model\ValueObjects\DateTimeValue;
 use ComplexHeart\Domain\Model\ValueObjects\EnumValue;
 use ComplexHeart\Domain\Model\ValueObjects\FloatValue;
 use ComplexHeart\Domain\Model\ValueObjects\IntegerValue;
 use ComplexHeart\Domain\Model\ValueObjects\StringValue;
-use ComplexHeart\Domain\Model\ValueObjects\BooleanValue;
 use ComplexHeart\Domain\Model\ValueObjects\UUIDValue;
 
 test('StringValue should create a valid StringValue Object.', function () {
@@ -119,7 +119,7 @@ test('ArrayValue should create a valid ArrayValue Object.', function () {
     ->group('Unit');
 
 test('ArrayValue should throw exception on invalid item type.', function () {
-    new SampleList([0]);
+    new Tags([0]);
 })
     ->throws(InvariantViolation::class)
     ->group('Unit');
@@ -161,7 +161,8 @@ test('ArrayValue should implement correctly ArrayAccess interface.', function ()
     expect($vo)->toBeIterable();
     expect($vo->getIterator())->toBeInstanceOf(ArrayIterator::class);
     expect($vo[0])->toEqual('one');
-});
+})
+    ->group('Unit');
 
 test('ArrayValue should throw exception on deleting a value.', function () {
     $vo = new class(['one', 'two']) extends ArrayValue {
@@ -174,7 +175,7 @@ test('ArrayValue should throw exception on deleting a value.', function () {
     unset($vo[1]);
 })
     ->group('Unit')
-    ->throws(ImmutableException::class);
+    ->throws(ImmutabilityError::class);
 
 test('ArrayValue should throw exception on changing a value.', function () {
     $vo = new class(['one', 'two']) extends ArrayValue {
@@ -187,7 +188,7 @@ test('ArrayValue should throw exception on changing a value.', function () {
     $vo[1] = 'NewOne';
 })
     ->group('Unit')
-    ->throws(ImmutableException::class);
+    ->throws(ImmutabilityError::class);
 
 test('ArrayValue should be converted to string correctly.', function () {
     $vo = new class(['one', 'two']) extends ArrayValue {
@@ -201,33 +202,38 @@ test('ArrayValue should be converted to string correctly.', function () {
     expect((string) $vo)
         ->toBeString()
         ->toEqual('["one","two"]');
-});
+})
+    ->group('Unit');
 
 test('ArrayValue should implement correctly Serializable interface.', function () {
-    $vo = new SampleList(['one', 'two']);
+    $vo = new Tags(['one', 'two']);
     $vo->unserialize($vo->serialize());
 
     expect($vo->values())->toEqual(['value' => ['one', 'two']]);
-});
+})
+    ->group('Unit');
 
 test('ArrayValue should implement successfully serialize and unserialize methods.', function () {
-    $vo = new SampleList(['one', 'two']);
+    $vo = new Tags(['one', 'two']);
 
     expect($vo)->toEqual(unserialize(serialize($vo)));
-});
+})
+    ->group('Unit');
 
 test('UUIDValue should create a valid UUIDValue Object.', function () {
     $vo = UUIDValue::random();
 
     expect($vo->is($vo))->toBeTrue();
     expect((string) $vo)->toEqual($vo->__toString());
-});
+})
+    ->group('Unit');
 
 test('DateTimeValue should create a valid DateTimeValue Object.', function () {
     $vo = new DateTimeValue('2023-01-01T22:25:00+01:00');
 
     expect($vo->values())->toBe(['value' => '2023-01-01T22:25:00+01:00']);
-});
+})
+    ->group('Unit');
 
 test('EnumValue should create a valid EnumValue Object.', function () {
     $vo = new class ('one') extends EnumValue {
@@ -240,5 +246,5 @@ test('EnumValue should create a valid EnumValue Object.', function () {
 
     expect($vo::getLabels()[0])->toBe('ONE');
     expect($vo::getLabels()[1])->toBe('TWO');
-});
-
+})
+    ->group('Unit');

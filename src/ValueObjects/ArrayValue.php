@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\ValueObjects;
 
+use ComplexHeart\Domain\Model\Errors\ImmutabilityError;
 use Countable;
-use ComplexHeart\Domain\Model\Exceptions\ImmutableException;
+
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
 use Serializable;
 use ArrayAccess;
@@ -16,7 +17,7 @@ use Traversable;
 /**
  * Class ArrayValue
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\ValueObjects
  */
 abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAccess, Serializable, Countable
@@ -164,7 +165,7 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        throw new ImmutableException("Illegal attempt of change immutable value on offset $offset");
+        throw new ImmutabilityError("Illegal attempt of change immutable value on offset $offset");
     }
 
     /**
@@ -174,7 +175,7 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
      */
     public function offsetUnset(mixed $offset): void
     {
-        throw new ImmutableException("Illegal attempt of unset immutable value on offset $offset");
+        throw new ImmutabilityError("Illegal attempt of unset immutable value on offset $offset");
     }
 
     /**

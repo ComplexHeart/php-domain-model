@@ -9,7 +9,7 @@ use Exception;
 /**
  * Class InvariantViolation
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
+ * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Exceptions
  */
 class InvariantViolation extends Exception

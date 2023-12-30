@@ -2,55 +2,49 @@
 
 declare(strict_types=1);
 
-namespace ComplexHeart\Domain\Model\Test\Sample\Models;
+namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain;
 
 use ComplexHeart\Contracts\Domain\Model\Aggregate;
 use ComplexHeart\Contracts\Domain\Model\Identifier;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
-use ComplexHeart\Domain\Model\Test\Sample\Events\OrderCreated;
-use ComplexHeart\Domain\Model\Traits\IsAggregate;
+use ComplexHeart\Domain\Model\IsAggregate;
+use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Events\OrderCreated;
 use ComplexHeart\Domain\Model\ValueObjects\DateTimeValue as Timestamp;
 
 /**
  * Class Order
  *
- * @author Unay Santisteban <usantisteban@othercode.es>
- * @package ComplexHeart\Domain\Model\Test\Sample\Models
+ * @author Unay Santisteban <usantisteban@othercode.io>
+ * @package ComplexHeart\Domain\Model\Test\OrderManagement\Models
  */
 final class Order implements Aggregate
 {
     use IsAggregate;
 
-    public readonly Reference $reference; // @phpstan-ignore-line
-
-    public readonly string $name; // @phpstan-ignore-line
-
-    public readonly OrderLines $lines; // @phpstan-ignore-line
-
-    public readonly Timestamp $created; // @phpstan-ignore-line
-
-    public function __construct(Reference $reference, string $name, OrderLines $lines, Timestamp $created)
-    {
-        $this->initialize([
-            'reference' => $reference,
-            'name' => $name,
-            'lines' => $lines,
-            'created' => $created
-        ]);
-
-        $this->registerDomainEvent(new OrderCreated($this));
+    public function __construct(
+        public Reference $reference,
+        public string $name,
+        public OrderLines $lines,
+        public Tags $tags,
+        public Timestamp $created
+    ) {
+        $this->check();
     }
 
     public static function create(int $number, string $name): Order
     {
         $created = Timestamp::now();
-
-        return new Order(
+        $order = new Order(
             reference: Reference::fromTimestamp($created, $number),
             name: $name,
             lines: OrderLines::empty(),
+            tags: new Tags(),
             created: $created
         );
+
+        $order->registerDomainEvent(new OrderCreated($order));
+
+        return $order;
     }
 
     public function id(): Identifier
@@ -63,7 +57,7 @@ final class Order implements Aggregate
      *
      * @throws InvariantViolation
      */
-    public function addOrderLine(OrderLine $line): Order
+    public function addOrderLine(OrderLine $line): self
     {
         $this->lines->add($line);
 
@@ -72,7 +66,8 @@ final class Order implements Aggregate
 
     public function withName(string $name): self
     {
-        return $this->withOverrides(['name' => $name]);
+        $this->name = $name;
+        return $this;
     }
 
     public function __toString(): string

@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 use ComplexHeart\Contracts\Domain\ServiceBus\Event;
 use ComplexHeart\Contracts\Domain\ServiceBus\EventBus;
-use ComplexHeart\Domain\Model\Test\Sample\Models\Order;
+use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Order;
 
 test('Aggregate should register domain event successfully.', function () {
-    Order::create(1, 'Vincent Vega')->publishDomainEvents(mock(EventBus::class)->expect(
-        publish: function (Event ...$events) {
+    $eventBus = mock(EventBus::class);
+    $eventBus->shouldReceive('publish')
+        ->withArgs(function (Event ...$events) {
             expect($events)->toHaveCount(1);
-            foreach ($events as $event) {
-                expect($event)->toBeInstanceOf(Event::class);
-            }
-        }
-    ));
+            return true;
+        });
+
+    Order::create(1, 'Vincent Vega')->publishDomainEvents($eventBus);
 })
     ->group('Unit');
 
