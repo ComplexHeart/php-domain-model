@@ -14,28 +14,26 @@ the functionality you need without compromising the essence of your own domain.
 Let's see a very basic example:
 
 ```php
-use ComplexHeart\Contracts\Domain\Model\ValueObject;use ComplexHeart\Domain\Model\IsValueObject;
+use ComplexHeart\Contracts\Domain\Model\ValueObject;
+use ComplexHeart\Domain\Model\IsValueObject;
 
-/**
- * Class Color
- * @method string value()
- */
-final class Color implements ValueObject 
+final class Color implements ValueObject
 {
     use IsValueObject;
-    
-    private string $value;
- 
-    public function __construct(string $value) {
-        $this->initialize(['value' => $value]);
+
+    public function __construct(public readonly string $value)
+    {
+        $this->check();
     }
-    
-    protected function invariantValueMustBeHexadecimal(): bool {
+
+    protected function invariantValueMustBeHexadecimal(): bool
+    {
         return preg_match('/^#(?:[0-9a-fA-F]{3}){1,2}$/', $this->value) === 1;
     }
-    
-    public function __toString(): string {
-        return $this->value();
+
+    public function __toString(): string
+    {
+        return $this->value;
     }
 }
 
@@ -46,8 +44,8 @@ $magenta = new Color('ff00ff'); // Exception InvariantViolation: Value must be h
 ```
 
 To define a Value Object you only need to use the `IsValueObject` trait. This trait will allow you to use some functions
-like `equals()` that will automatically compare the value of the objects. The `initialize()` is also available, it will
-allow you to run invariant validations against the object values. Optionally, and recommended, you can use
+like `equals()` that will automatically compare the value of the objects. The `check()` method is also available, it
+allows you to run invariant validations against the object values. Optionally, and recommended, you can use
 the `ValueObject` interface.
 
 The available traits are:
@@ -64,3 +62,5 @@ On top of those base traits **Complex Heart** provide ready to use compositions:
 - `IsValueObject` composed by `IsModel` and `HasEquality`.
 - `IsEntity` composed by `IsModel`, `HasIdentity`, `HasEquality`.
 - `IsAggregate` composed by `IsEntity`, `HasDomainEvents`.
+
+For more information please check the wiki.
