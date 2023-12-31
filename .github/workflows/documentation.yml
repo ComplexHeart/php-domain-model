@@ -38,7 +38,7 @@ jobs:
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: Copy Files
-        run: cp README.md wiki/home.md
+        run: cp README.md wiki/Home.md
 
       - name: Publish documentation to Wiki
         uses: SwiftDocOrg/github-wiki-publish-action@v1
