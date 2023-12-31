@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        php-version: [ '8.1' ]
+        php-version: [ '8.2' ]
 
     steps:
       - name: Checkout source code
@@ -36,6 +36,9 @@ jobs:
 
       - name: Install Dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Copy Files
+        run: cp README.md wiki/home.md
 
       - name: Publish documentation to Wiki
         uses: SwiftDocOrg/github-wiki-publish-action@v1

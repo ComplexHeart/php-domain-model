@@ -23,7 +23,7 @@ final class Order implements Aggregate
 
     public function __construct(
         public Reference $reference,
-        public string $name,
+        public Customer $customer,
         public OrderLines $lines,
         public Tags $tags,
         public Timestamp $created
@@ -31,12 +31,12 @@ final class Order implements Aggregate
         $this->check();
     }
 
-    public static function create(int $number, string $name): Order
+    public static function create(int $number, array $customer): Order
     {
         $created = Timestamp::now();
         $order = new Order(
             reference: Reference::fromTimestamp($created, $number),
-            name: $name,
+            customer: new Customer(...$customer),
             lines: OrderLines::empty(),
             tags: new Tags(),
             created: $created
@@ -66,8 +66,13 @@ final class Order implements Aggregate
 
     public function withName(string $name): self
     {
-        $this->name = $name;
+        $this->customer->name = $name;
         return $this;
+    }
+
+    public function customerName(): string
+    {
+        return $this->customer->name;
     }
 
     public function __toString(): string

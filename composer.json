@@ -17,7 +17,7 @@
     "nesbot/carbon": "^2.40",
     "illuminate/collections": "^10.0",
     "lambdish/phunctional": "^2.1",
-    "doctrine/instantiator": "^1.0|^2.0",
+    "doctrine/instantiator": "^2.0",
     "complex-heart/contracts": "^1.0"
   },
   "require-dev": {

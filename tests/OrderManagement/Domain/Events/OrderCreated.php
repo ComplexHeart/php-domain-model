@@ -21,24 +21,21 @@ class OrderCreated implements Event
 {
     private ID $id;
 
-    private string $name = 'order.created';
+    private string $name = 'order_management.order.created';
 
     private array $payload;
 
     private Timestamp $timestamp;
 
-    /**
-     * @param  Order  $order
-     * @param  ID|null  $id
-     * @param  Timestamp|null  $timestamp
-     * @throws Exception
-     */
     public function __construct(Order $order, ?ID $id = null, ?Timestamp $timestamp = null)
     {
         $this->id = is_null($id) ? ID::random() : $id;
         $this->payload = [
             'id' => $order->id()->value(),
-            'name' => $order->name,
+            'customer' => [
+                'id' => $order->customer->id,
+                'name' => $order->customer->name,
+            ],
             'orderLines' => $order->lines->map(fn(OrderLine $line) => $line->values()),
             'tags' => $order->tags->values()['value'],
             'created' => $order->created->toIso8601String(),

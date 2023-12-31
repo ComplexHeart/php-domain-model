@@ -11,13 +11,11 @@ use ComplexHeart\Domain\Model\Errors\ImmutabilityError;
  *
  * Non-canonical way to enforce immutability of an object. Will be
  * removed in the future as is not an intuitive and explicit way to
- * have immutability in PHP.
- *
- * WARNING: THIS MAY CAUSE SOME MAGIC AND BUGGY BEHAVIOR.
+ * have immutability in PHP. For PHP >= 8.1 use readonly keyword.
  *
  * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Traits
- * @deprecated Will be removed in future versions. For PHP >= 8 use readonly keyword.
+ * @deprecated Will be removed in future versions.
  */
 trait HasImmutability
 {
