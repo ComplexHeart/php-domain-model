@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace ComplexHeart\Domain\Model\ValueObjects;
 
 use ComplexHeart\Domain\Model\Errors\ImmutabilityError;
-use Countable;
-
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
+use Countable;
 use Serializable;
 use ArrayAccess;
 use ArrayIterator;

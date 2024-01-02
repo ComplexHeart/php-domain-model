@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain;
 
-use ComplexHeart\Contracts\Domain\Model\Entity;
-use ComplexHeart\Contracts\Domain\Model\Identifier;
+use ComplexHeart\Domain\Contracts\Model\Identifier;
+use ComplexHeart\Domain\Contracts\Model\Entity;
 use ComplexHeart\Domain\Model\IsEntity;
 use ComplexHeart\Domain\Model\ValueObjects\UUIDValue;
 

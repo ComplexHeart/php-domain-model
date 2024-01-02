@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ComplexHeart\Domain\Model\ValueObjects;
 
 use Carbon\CarbonImmutable;
-use ComplexHeart\Contracts\Domain\Model\ValueObject;
+use ComplexHeart\Domain\Contracts\Model\ValueObject;
 use ComplexHeart\Domain\Model\Traits\HasEquality;
 use DateTimeZone;
 use Exception;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Traits;
 
-use ComplexHeart\Contracts\Domain\Model\Identifier;
+use ComplexHeart\Domain\Contracts\Model\Identifier;
 
 /**
  * Trait HasIdentity

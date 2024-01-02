@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\ValueObjects;
 
-use ComplexHeart\Contracts\Domain\Model\Identifier;
+
+use ComplexHeart\Domain\Contracts\Model\Identifier;
 use Exception;
 use Ramsey\Uuid\Uuid;
 

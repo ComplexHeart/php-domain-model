@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use ComplexHeart\Contracts\Domain\ServiceBus\Event;
-use ComplexHeart\Contracts\Domain\ServiceBus\EventBus;
+use ComplexHeart\Domain\Contracts\ServiceBus\Event;
+use ComplexHeart\Domain\Contracts\ServiceBus\EventBus;
 use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Order;
 use ComplexHeart\Domain\Model\ValueObjects\UUIDValue;
 

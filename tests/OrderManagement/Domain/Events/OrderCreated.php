@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Events;
 
-use Exception;
-use ComplexHeart\Contracts\Domain\ServiceBus\Event;
+use ComplexHeart\Domain\Contracts\ServiceBus\Event;
 use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\OrderLine;
 use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Order;
 use ComplexHeart\Domain\Model\ValueObjects\DateTimeValue as Timestamp;

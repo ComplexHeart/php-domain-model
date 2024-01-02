@@ -18,7 +18,7 @@
     "illuminate/collections": "^10.0",
     "lambdish/phunctional": "^2.1",
     "doctrine/instantiator": "^2.0",
-    "complex-heart/contracts": "^1.0"
+    "complex-heart/contracts": "^2.0"
   },
   "require-dev": {
     "pestphp/pest": "^2.0",

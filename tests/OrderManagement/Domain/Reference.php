@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain;
 
-use ComplexHeart\Contracts\Domain\Model\Identifier;
+use ComplexHeart\Domain\Contracts\Model\Identifier;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
 use ComplexHeart\Domain\Model\ValueObjects\DateTimeValue as Timestamp;
 use ComplexHeart\Domain\Model\ValueObjects\StringValue;

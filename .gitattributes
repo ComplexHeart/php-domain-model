@@ -1,6 +1,7 @@
-/.github        export-ignore
-/.gitattributes export-ignore
-/phpunit.xml    export-ignore
-/tests          export-ignore
-/wiki          export-ignore
-/README.md
+/.github                    export-ignore
+/.gitattributes             export-ignore
+/phpunit.xml                export-ignore
+/tests                      export-ignore
+/wiki                       export-ignore
+/README.md                  export-ignore
+/sonar-project.properties   export-ignore

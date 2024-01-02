@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\ValueObjects;
 
-use ComplexHeart\Contracts\Domain\Model\ValueObject;
+use ComplexHeart\Domain\Contracts\Model\ValueObject;
 use ComplexHeart\Domain\Model\IsValueObject;
 
 /**

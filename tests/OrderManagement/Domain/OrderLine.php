@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain;
 
-
-use ComplexHeart\Contracts\Domain\Model\ValueObject;
+use ComplexHeart\Domain\Contracts\Model\ValueObject;
 use ComplexHeart\Domain\Model\IsValueObject;
 
 /**

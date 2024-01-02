@@ -10,6 +10,7 @@ use ReflectionClass;
  * Class EnumValue
  *
  * @method mixed value()
+ * @deprecated
  *
  * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\ValueObjects
