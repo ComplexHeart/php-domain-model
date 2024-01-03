@@ -18,15 +18,17 @@ use Traversable;
  *
  * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\ValueObjects
+ * @implements IteratorAggregate<int|string, mixed>
+ * @implements ArrayAccess<int|string, mixed>
  */
 abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAccess, Serializable, Countable
 {
     /**
      * The value storage.
      *
-     * @var array
+     * @var array<int|string, mixed>
      */
-    protected array $value;
+    protected array $value = [];
 
     /**
      * Define the min amount of items for the array.
@@ -52,7 +54,7 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
     /**
      * ArrayValue constructor.
      *
-     * @param  array  $value
+     * @param  array<int|string, mixed>  $value
      */
     public function __construct(array $value = [])
     {
@@ -125,7 +127,7 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
     /**
      * Retrieve an external iterator.
      *
-     * @return Traversable
+     * @return Traversable<int|string, mixed>
      */
     public function getIterator(): Traversable
     {
@@ -202,6 +204,10 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
         $this->value = unserialize($data);
     }
 
+    /**
+     * @param  array<int|string, mixed>  $data
+     * @return void
+     */
     public function __unserialize(array $data): void
     {
         $this->initialize($data);
@@ -224,6 +230,7 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
      */
     public function __toString(): string
     {
-        return json_encode($this->value);
+        $string = json_encode($this->value);
+        return is_string($string) ? $string : "[]";
     }
 }

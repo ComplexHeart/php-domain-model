@@ -14,6 +14,10 @@ use Illuminate\Support\Collection;
  *
  * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Domain
+ *
+ * @template TKey of array-key
+ * @template-covariant TValue
+ * @extends Collection<TKey, TValue>
  */
 class TypedCollection extends Collection
 {
@@ -37,7 +41,7 @@ class TypedCollection extends Collection
     /**
      * TypedCollection constructor.
      *
-     * @param  array  $items
+     * @param  array<TKey, TValue>  $items
      */
     public function __construct(array $items = [])
     {
@@ -138,7 +142,7 @@ class TypedCollection extends Collection
      *
      * @throws InvariantViolation
      */
-    public function offsetSet(mixed $key, mixed $value): void
+    public function offsetSet($key, $value): void
     {
         if ($this->keyType !== 'mixed') {
             $this->checkKeyType($key);
@@ -187,10 +191,9 @@ class TypedCollection extends Collection
     /**
      * Get the values of a given key.
      *
-     * @param  string|array|int|null  $value
+     * @param  string|int|array<array-key, string>  $value
      * @param  string|null  $key
-     *
-     * @return Collection
+     * @return Collection<TKey, TValue>
      */
     public function pluck($value, $key = null): Collection
     {
@@ -200,7 +203,7 @@ class TypedCollection extends Collection
     /**
      * Get the keys of the collection items.
      *
-     * @return Collection
+     * @return Collection<TKey, TValue>
      */
     public function keys(): Collection
     {

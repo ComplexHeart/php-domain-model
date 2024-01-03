@@ -25,13 +25,12 @@ trait HasInvariants
         $invariants = [];
         foreach (get_class_methods(static::class) as $invariant) {
             if (str_starts_with($invariant, 'invariant') && !in_array($invariant, ['invariants', 'invariantHandler'])) {
-                $invariants[$invariant] = str_replace(
-                    'invariant ',
-                    '',
-                    strtolower(
-                        preg_replace('/[A-Z]([A-Z](?![a-z]))*/', ' $0', $invariant)
-                    )
-                );
+                $invariantRuleName = preg_replace('/[A-Z]([A-Z](?![a-z]))*/', ' $0', $invariant);
+                if (is_null($invariantRuleName)) {
+                    continue;
+                }
+
+                $invariants[$invariant] = str_replace('invariant ', '', strtolower($invariantRuleName));
             }
         }
 
@@ -55,18 +54,29 @@ trait HasInvariants
      * $onFail function must have the following signature:
      *  fn(array<string, string>) => void
      *
-     * @param  callable|null  $onFail
+     * @param  string|callable  $onFail
      *
      * @return void
      */
-    private function check(callable $onFail = null): void
+    private function check(string|callable $onFail = 'invariantHandler'): void
     {
-        $handler = 'invariantHandler';
+        $violations = $this->computeInvariantViolations();
+        if (!empty($violations)) {
+            call_user_func_array($this->computeInvariantHandler($onFail), [$violations]);
+        }
+    }
 
+    /**
+     * Computes the list of invariant violations.
+     *
+     * @return array<string, string>
+     */
+    private function computeInvariantViolations(): array
+    {
         $violations = [];
         foreach (static::invariants() as $invariant => $rule) {
             try {
-                if (!call_user_func_array([$this, $invariant], [])) {
+                if (!$this->{$invariant}()) {
                     $violations[$invariant] = $rule;
                 }
             } catch (Exception $e) {
@@ -74,29 +84,28 @@ trait HasInvariants
             }
         }
 
-        if (!empty($violations)) {
-            if (is_null($onFail)) {
-                $customizedHandler = function (array $violations) use ($handler): void {
-                    call_user_func_array([$this, $handler], [$violations]);
-                };
+        return $violations;
+    }
 
-                $defaultHandler = function (array $violations): void {
-                    throw new InvariantViolation(
-                        sprintf(
-                            "Unable to create %s due %s",
-                            basename(str_replace('\\', '/', static::class)),
-                            implode(",", $violations),
-
-                        )
-                    );
-                };
-
-                $onFail = (method_exists($this, $handler))
-                    ? $customizedHandler
-                    : $defaultHandler;
-            }
-
-            $onFail($violations);
+    private function computeInvariantHandler(string|callable $handlerFn): callable
+    {
+        if (!is_string($handlerFn)) {
+            return $handlerFn;
         }
+
+        return method_exists($this, $handlerFn)
+            ? function (array $violations) use ($handlerFn): void {
+                $this->{$handlerFn}($violations);
+            }
+            : function (array $violations): void {
+                throw new InvariantViolation(
+                    sprintf(
+                        "Unable to create %s due %s",
+                        basename(str_replace('\\', '/', static::class)),
+                        implode(",", $violations),
+
+                    )
+                );
+            };
     }
 }

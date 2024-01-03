@@ -47,7 +47,7 @@ trait HasAttributes
     /**
      * Populate the object recursively.
      *
-     * @param  iterable  $source
+     * @param  iterable<string, mixed>  $source
      */
     final protected function hydrate(iterable $source): void
     {
@@ -68,8 +68,8 @@ trait HasAttributes
         if (in_array($attribute, static::attributes())) {
             $method = $this->getStringKey($attribute, 'get', 'Value');
 
-            return ($this->canCall($method))
-                ? call_user_func_array([$this, $method], [$this->{$attribute}])
+            return method_exists($this, $method)
+                ? $this->{$method}($this->{$attribute})
                 : $this->{$attribute};
         }
 
@@ -87,8 +87,8 @@ trait HasAttributes
         if (in_array($attribute, $this->attributes())) {
             $method = $this->getStringKey($attribute, 'set', 'Value');
 
-            $this->{$attribute} = ($this->canCall($method))
-                ? call_user_func_array([$this, $method], [$value])
+            $this->{$attribute} = method_exists($this, $method)
+                ? $this->{$method}($value)
                 : $value;
         }
     }
@@ -117,23 +117,11 @@ trait HasAttributes
     }
 
     /**
-     * Check if the required method name is callable.
-     *
-     * @param  string  $method
-     *
-     * @return bool
-     */
-    protected function canCall(string $method): bool
-    {
-        return method_exists($this, $method);
-    }
-
-    /**
      * Dynamic method to access each attribute as method, i.e:
      *  $user->name() will access the private attribute name.
      *
      * @param  string  $attribute
-     * @param  array  $_
+     * @param  array<int, mixed>  $_
      * @return mixed|null
      * @deprecated will be removed in version 3.0
      */
