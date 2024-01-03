@@ -26,26 +26,37 @@ trait IsModel
      * Initialize the Model. Just as the constructor will do.
      *
      * @param  array<int|string, mixed>  $source
-     * @param  callable|null  $onFail
+     * @param  string|callable  $onFail
      *
      * @return static
      */
-    protected function initialize(array $source, callable $onFail = null): static
+    protected function initialize(array $source, string|callable $onFail = 'invariantHandler'): static
+    {
+        $this->hydrate($this->prepareAttributes($source));
+        $this->check($onFail);
+
+        return $this;
+    }
+
+    /**
+     * Transform an indexed array into assoc array by combining the
+     * given values with the list of attributes of the object.
+     *
+     * @param  array<int|string, mixed>  $source
+     *
+     * @return array<string, mixed>
+     */
+    private function prepareAttributes(array $source): array
     {
         // check if the array is indexed or associative.
         $isIndexed = fn($source): bool => ([] !== $source) && array_keys($source) === range(0, count($source) - 1);
 
-        $source = $isIndexed($source)
+        /** @var array<string, mixed> $source */
+        return $isIndexed($source)
             // combine the attributes keys with the provided source values.
             ? array_combine(array_slice(static::attributes(), 0, count($source)), $source)
             // return the already mapped array source.
             : $source;
-
-
-        $this->hydrate($source);
-        $this->check($onFail);
-
-        return $this;
     }
 
     /**

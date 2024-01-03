@@ -23,7 +23,7 @@ trait HasImmutability
      * Enforces the immutability by blocking any attempts of update any property.
      *
      * @param  string  $name
-     * @param $_
+     * @param  mixed  $_
      * @return void
      */
     final public function __set(string $name, $_): void

@@ -27,7 +27,7 @@ abstract class EnumValue extends Value
     /**
      * Internal cache.
      *
-     * @var array
+     * @var array<string, array<string>>
      */
     protected static array $cache = [];
 
@@ -44,7 +44,7 @@ abstract class EnumValue extends Value
     /**
      * Returns the cached constant data of the class.
      *
-     * @return array
+     * @return array<int|string, mixed>
      */
     private static function cache(): array
     {
@@ -81,7 +81,7 @@ abstract class EnumValue extends Value
     /**
      * Return the available labels.
      *
-     * @return string[]
+     * @return array<int, int|string>
      */
     public static function getLabels(): array
     {
