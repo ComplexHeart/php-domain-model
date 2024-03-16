@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Traits;
 
+use Closure;
+
 use function Lambdish\Phunctional\map;
 
 /**
@@ -34,14 +36,20 @@ trait HasAttributes
      *
      * @return array<string, mixed>
      */
-    final public function values(): array
+    final public function values(Closure $fn = null): array
     {
         $allowed = static::attributes();
 
-        return array_intersect_key(
+        $attributes = array_intersect_key(
             get_object_vars($this),
             array_combine($allowed, $allowed)
         );
+
+        if (is_callable($fn)) {
+            return map($fn, $attributes);
+        }
+
+        return $attributes;
     }
 
     /**
