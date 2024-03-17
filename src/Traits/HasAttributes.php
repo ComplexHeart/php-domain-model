@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Traits;
 
-use Closure;
-
 use function Lambdish\Phunctional\map;
 
 /**
@@ -34,9 +32,10 @@ trait HasAttributes
      * Return the attribute values.
      * Properties starting with "_" will be considered as internal use only.
      *
+     * @param callable $fn
      * @return array<string, mixed>
      */
-    final public function values(Closure $fn = null): array
+    final public function values(?callable $fn = null): array
     {
         $allowed = static::attributes();
 
