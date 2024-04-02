@@ -9,3 +9,5 @@ test.xml
 .phpunit.result.cache
 composer.lock
 wiki/Home.md
+/.phpunit.cache
+.phpactor.json

@@ -11,18 +11,18 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "php": "^8.1",
+    "php": "^8.1.0",
     "ext-json": "*",
-    "ramsey/uuid": "^4.1",
-    "nesbot/carbon": "^2.40",
-    "illuminate/collections": "^10.0",
-    "lambdish/phunctional": "^2.1",
-    "doctrine/instantiator": "^2.0",
-    "complex-heart/contracts": "^2.0"
+    "ramsey/uuid": "^4.1.0",
+    "nesbot/carbon": "^2.40.0",
+    "illuminate/collections": "^11.0.0",
+    "lambdish/phunctional": "^2.1.0",
+    "doctrine/instantiator": "^2.0.0",
+    "complex-heart/contracts": "^2.0.0"
   },
   "require-dev": {
+    "mockery/mockery": "^1.6.0",
     "pestphp/pest": "^2.0",
-    "pestphp/pest-plugin-mock": "^2.0",
     "pestphp/pest-plugin-faker": "^2.0",
     "phpstan/phpstan": "^1.0",
     "phpstan/extension-installer": "^1.3",
