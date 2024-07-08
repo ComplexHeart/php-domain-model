@@ -7,7 +7,10 @@ namespace ComplexHeart\Domain\Model\ValueObjects;
 
 use ComplexHeart\Domain\Contracts\Model\Identifier;
 use Exception;
+use Ramsey\Uuid\Codec\TimestampFirstCombCodec;
+use Ramsey\Uuid\Generator\CombGenerator;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidFactory;
 
 /**
  * Class UUIDValue
@@ -17,8 +20,6 @@ use Ramsey\Uuid\Uuid;
  */
 class UUIDValue extends Value implements Identifier
 {
-    private const RANDOM = 'random';
-
     /**
      * The uuid string value.
      *
@@ -33,9 +34,7 @@ class UUIDValue extends Value implements Identifier
      */
     final public function __construct(string $value)
     {
-        $this->initialize(
-            ['value' => ($value === self::RANDOM) ? Uuid::uuid4()->toString() : $value]
-        );
+        $this->initialize(['value' => $value]);
     }
 
     /**
@@ -64,9 +63,26 @@ class UUIDValue extends Value implements Identifier
      * @return static
      * @throws Exception
      */
-    public static function random(): self
+    public static function random(bool $ordered = true): self
     {
-        return new static(self::RANDOM);
+        if ($ordered) {
+            $factory = new UuidFactory;
+
+            $factory->setRandomGenerator(new CombGenerator(
+                $factory->getRandomGenerator(),
+                $factory->getNumberConverter()
+            ));
+
+            $factory->setCodec(new TimestampFirstCombCodec(
+                $factory->getUuidBuilder()
+            ));
+
+            $uuid = $factory->uuid4();
+        } else {
+            $uuid = Uuid::uuid4();
+        }
+
+        return new static($uuid->toString());
     }
 
     /**
