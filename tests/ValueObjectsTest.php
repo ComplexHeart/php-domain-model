@@ -55,7 +55,7 @@ test('StringValue should throw exception on regex invariant violation.', functio
         protected string $_pattern = '[a-z]';
     };
 })
-    ->throws(InvariantViolation::class)
+    ->throws(InvalidArgumentException::class)
     ->group('Unit');
 
 test('BooleanValue should create a valid BooleanValue Object.', function () {
@@ -157,10 +157,10 @@ test('ArrayValue should implement correctly ArrayAccess interface.', function ()
         protected string $valueType = 'string';
     };
 
-    expect($vo)->toHaveCount(2);
-    expect($vo)->toBeIterable();
-    expect($vo->getIterator())->toBeInstanceOf(ArrayIterator::class);
-    expect($vo[0])->toEqual('one');
+    expect($vo)->toHaveCount(2)
+        ->and($vo)->toBeIterable()
+        ->and($vo->getIterator())->toBeInstanceOf(ArrayIterator::class)
+        ->and($vo[0])->toEqual('one');
 })
     ->group('Unit');
 
@@ -223,8 +223,8 @@ test('ArrayValue should implement successfully serialize and unserialize methods
 test('UUIDValue should create a valid UUIDValue Object.', function () {
     $vo = UUIDValue::random();
 
-    expect($vo->is($vo))->toBeTrue();
-    expect((string) $vo)->toEqual($vo->__toString());
+    expect($vo->is($vo))->toBeTrue()
+        ->and((string) $vo)->toEqual($vo->__toString());
 })
     ->group('Unit');
 
@@ -241,10 +241,9 @@ test('EnumValue should create a valid EnumValue Object.', function () {
         const TWO = 'two';
     };
 
-    expect($vo->value())->toBe('one');
-    expect($vo->value())->toBe((string) $vo);
-
-    expect($vo::getLabels()[0])->toBe('ONE');
-    expect($vo::getLabels()[1])->toBe('TWO');
+    expect($vo->value())->toBe('one')
+        ->and($vo->value())->toBe((string) $vo)
+        ->and($vo::getLabels()[0])->toBe('ONE')
+        ->and($vo::getLabels()[1])->toBe('TWO');
 })
     ->group('Unit');
