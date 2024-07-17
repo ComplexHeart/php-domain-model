@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace ComplexHeart\Domain\Model\Traits;
 
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
-use Exception;
+use Throwable;
+
+use function Lambdish\Phunctional\map;
 
 /**
  * Trait HasInvariants
@@ -16,25 +18,37 @@ use Exception;
 trait HasInvariants
 {
     /**
+     * Static property to keep cached invariants list to optimize performance.
+     *
+     * @var array<string, string[]>
+     */
+    protected static $_invariantsCache = [];
+
+    /**
      * Retrieve the object invariants.
      *
      * @return string[]
      */
     final public static function invariants(): array
     {
-        $invariants = [];
-        foreach (get_class_methods(static::class) as $invariant) {
-            if (str_starts_with($invariant, 'invariant') && !in_array($invariant, ['invariants', 'invariantHandler'])) {
-                $invariantRuleName = preg_replace('/[A-Z]([A-Z](?![a-z]))*/', ' $0', $invariant);
-                if (is_null($invariantRuleName)) {
-                    continue;
-                }
+        if (array_key_exists(static::class, static::$_invariantsCache) === false) {
+            $invariants = [];
+            foreach (get_class_methods(static::class) as $invariant) {
+                if (str_starts_with($invariant, 'invariant') && !in_array($invariant,
+                        ['invariants', 'invariantHandler'])) {
+                    $invariantRuleName = preg_replace('/[A-Z]([A-Z](?![a-z]))*/', ' $0', $invariant);
+                    if (is_null($invariantRuleName)) {
+                        continue;
+                    }
 
-                $invariants[$invariant] = str_replace('invariant ', '', strtolower($invariantRuleName));
+                    $invariants[$invariant] = str_replace('invariant ', '', strtolower($invariantRuleName));
+                }
             }
+
+            static::$_invariantsCache[static::class] = $invariants;
         }
 
-        return $invariants;
+        return static::$_invariantsCache[static::class];
     }
 
     /**
@@ -52,57 +66,68 @@ trait HasInvariants
      * If exception is thrown the error message will be the exception message.
      *
      * $onFail function must have the following signature:
-     *  fn(array<string, string>) => void
+     *  fn(array<string, Throwable>) => void
      *
      * @param  string|callable  $onFail
+     * @param  string  $exception
      *
      * @return void
      */
-    private function check(string|callable $onFail = 'invariantHandler'): void
-    {
-        $violations = $this->computeInvariantViolations();
+    private function check(
+        string|callable $onFail = 'invariantHandler',
+        string $exception = InvariantViolation::class
+    ): void {
+        $violations = $this->computeInvariantViolations($exception);
         if (!empty($violations)) {
-            call_user_func_array($this->computeInvariantHandler($onFail), [$violations]);
+            call_user_func_array($this->computeInvariantHandler($onFail, $exception), [$violations]);
         }
     }
 
     /**
      * Computes the list of invariant violations.
      *
-     * @return array<string, string>
+     * @param  string  $exception
+     *
+     * @return array<string, Throwable>
      */
-    private function computeInvariantViolations(): array
+    private function computeInvariantViolations(string $exception): array
     {
         $violations = [];
         foreach (static::invariants() as $invariant => $rule) {
             try {
                 if (!$this->{$invariant}()) {
-                    $violations[$invariant] = $rule;
+                    /** @var array<string, Throwable> $violations */
+                    $violations[$invariant] = new $exception($rule);
                 }
-            } catch (Exception $e) {
-                $violations[$invariant] = $e->getMessage();
+            } catch (Throwable $e) {
+                /** @var array<string, Throwable> $violations */
+                $violations[$invariant] = $e;
             }
         }
 
         return $violations;
     }
 
-    private function computeInvariantHandler(string|callable $handlerFn): callable
+    private function computeInvariantHandler(string|callable $handlerFn, string $exception): callable
     {
         if (!is_string($handlerFn)) {
             return $handlerFn;
         }
 
         return method_exists($this, $handlerFn)
-            ? function (array $violations) use ($handlerFn): void {
-                $this->{$handlerFn}($violations);
+            ? function (array $violations) use ($handlerFn, $exception): void {
+                $this->{$handlerFn}($violations, $exception);
             }
-            : function (array $violations): void {
-                throw new InvariantViolation(
+            : function (array $violations) use ($exception): void {
+                if (count($violations) === 1) {
+                    throw array_shift($violations);
+                }
+
+                throw new $exception( // @phpstan-ignore-line
                     sprintf(
-                        "Unable to create %s due %s",
+                        "Unable to create %s due: %s",
                         basename(str_replace('\\', '/', static::class)),
-                        implode(",", $violations),
+                        implode(", ", map(fn(Throwable $e): string => $e->getMessage(), $violations)),
 
                     )
                 );
