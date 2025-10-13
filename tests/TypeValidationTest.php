@@ -204,3 +204,39 @@ test('make() should handle union types with named parameters', function () {
 test('make() should validate union types with named parameters', function () {
     Money::make(amount: 'invalid', currency: 'USD');
 })->throws(TypeError::class, 'parameter "amount" must be of type int|float');
+
+test('new() should work as alias for make()', function () {
+    $email = Email::new('test@example.com');
+
+    expect($email)->toBeInstanceOf(Email::class)
+        ->and((string) $email)->toBe('test@example.com');
+});
+
+test('new() should support positional parameters', function () {
+    $money = Money::new(100, 'USD');
+
+    expect($money)->toBeInstanceOf(Money::class)
+        ->and((string) $money)->toBe('100 USD');
+});
+
+test('new() should support named parameters', function () {
+    $email = Email::new(value: 'user@example.com');
+
+    expect($email)->toBeInstanceOf(Email::class)
+        ->and((string) $email)->toBe('user@example.com');
+});
+
+test('new() should support named parameters in any order', function () {
+    $money = Money::new(currency: 'EUR', amount: 99.99);
+
+    expect($money)->toBeInstanceOf(Money::class)
+        ->and((string) $money)->toBe('99.99 EUR');
+});
+
+test('new() should throw TypeError for invalid types', function () {
+    Email::new(123);
+})->throws(TypeError::class, 'parameter "value" must be of type string, int given');
+
+test('new() should validate union types', function () {
+    Money::new(['invalid'], 'USD');
+})->throws(TypeError::class, 'parameter "amount" must be of type int|float');

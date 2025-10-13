@@ -121,6 +121,13 @@ trait HasInvariants
                 $this->{$handlerFn}($violations, $exception);
             }
         : function (array $violations) use ($exception): void {
+            // Always aggregate violations for InvariantViolation
+            if ($exception === InvariantViolation::class) {
+                $messages = map(fn (Throwable $e): string => $e->getMessage(), $violations);
+                throw InvariantViolation::fromViolations(array_values($messages));
+            }
+
+            // Legacy behavior for custom exception classes
             if (count($violations) === 1) {
                 throw array_shift($violations);
             }

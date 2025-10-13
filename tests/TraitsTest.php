@@ -76,4 +76,92 @@ test('Object with HasInvariants should throw exception with list of exceptions',
     };
 })
     ->group('Unit')
-    ->throws(InvariantViolation::class, 'always fail one, always fail two');
+    ->throws(InvariantViolation::class, 'Multiple invariant violations (2)');
+
+test('InvariantViolation should support multiple violations aggregation', function () {
+    try {
+        new class () {
+            use HasInvariants;
+
+            public function __construct()
+            {
+                $this->check();
+            }
+
+            protected function invariantAlwaysFailOne(): bool
+            {
+                return false;
+            }
+
+            protected function invariantAlwaysFailTwo(): bool
+            {
+                return false;
+            }
+
+            protected function invariantAlwaysFailThree(): bool
+            {
+                return false;
+            }
+        };
+    } catch (InvariantViolation $e) {
+        expect($e->hasMultipleViolations())->toBeTrue()
+            ->and($e->getViolationCount())->toBe(3)
+            ->and($e->getViolations())->toHaveCount(3)
+            ->and($e->getViolations())->toContain('always fail one')
+            ->and($e->getViolations())->toContain('always fail two')
+            ->and($e->getViolations())->toContain('always fail three')
+            ->and($e->getMessage())->toContain('Multiple invariant violations (3)');
+    }
+})
+    ->group('Unit');
+
+test('InvariantViolation::fromViolations should handle single violation cleanly', function () {
+    try {
+        new class () {
+            use HasInvariants;
+
+            public function __construct()
+            {
+                $this->check();
+            }
+
+            protected function invariantSingleFailure(): bool
+            {
+                return false;
+            }
+        };
+    } catch (InvariantViolation $e) {
+        expect($e->hasMultipleViolations())->toBeFalse()
+            ->and($e->getViolationCount())->toBe(1)
+            ->and($e->getViolations())->toBe(['single failure'])
+            ->and($e->getMessage())->toBe('single failure')
+            ->and($e->getMessage())->not->toContain('Multiple invariant violations');
+    }
+})
+    ->group('Unit');
+
+test('InvariantViolation::fromViolations should format multiple violations', function () {
+    $violations = ['First error', 'Second error', 'Third error'];
+    $exception = InvariantViolation::fromViolations($violations);
+
+    expect($exception)->toBeInstanceOf(InvariantViolation::class)
+        ->and($exception->hasMultipleViolations())->toBeTrue()
+        ->and($exception->getViolationCount())->toBe(3)
+        ->and($exception->getViolations())->toBe($violations)
+        ->and($exception->getMessage())->toContain('Multiple invariant violations (3)')
+        ->and($exception->getMessage())->toContain('First error')
+        ->and($exception->getMessage())->toContain('Second error')
+        ->and($exception->getMessage())->toContain('Third error');
+})
+    ->group('Unit');
+
+test('InvariantViolation::fromViolations with single violation should not show count', function () {
+    $exception = InvariantViolation::fromViolations(['Single error message']);
+
+    expect($exception)->toBeInstanceOf(InvariantViolation::class)
+        ->and($exception->hasMultipleViolations())->toBeFalse()
+        ->and($exception->getViolationCount())->toBe(1)
+        ->and($exception->getViolations())->toBe(['Single error message'])
+        ->and($exception->getMessage())->toBe('Single error message');
+})
+    ->group('Unit');
