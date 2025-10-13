@@ -14,5 +14,4 @@ use Error;
  */
 class ImmutabilityError extends Error
 {
-
 }

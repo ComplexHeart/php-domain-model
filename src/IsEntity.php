@@ -16,7 +16,6 @@ use ComplexHeart\Domain\Model\Traits\HasIdentity;
  * @see https://martinfowler.com/bliki/EvansClassification.html
  *
  * @author Unay Santisteban <usantisteban@othercode.io>
- * @package ComplexHeart\Domain\Model\Traits
  */
 trait IsEntity
 {
@@ -24,5 +23,15 @@ trait IsEntity
     use HasIdentity;
     use HasEquality {
         HasIdentity::hash insteadof HasEquality;
+    }
+
+    /**
+     * Entities have automatic invariant checking enabled by default.
+     *
+     * @return bool
+     */
+    protected function shouldAutoCheckInvariants(): bool
+    {
+        return true;
     }
 }

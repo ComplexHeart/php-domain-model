@@ -16,7 +16,6 @@ use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
  */
 abstract class IntegerValue extends Value
 {
-
     /**
      * Define the max value of the integer.
      *

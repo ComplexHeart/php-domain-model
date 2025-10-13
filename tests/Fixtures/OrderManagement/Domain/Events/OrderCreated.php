@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Events;
+namespace ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Events;
 
 use ComplexHeart\Domain\Contracts\ServiceBus\Event;
-use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\OrderLine;
-use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Order;
+use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\OrderLine;
+use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Order;
 use ComplexHeart\Domain\Model\ValueObjects\DateTimeValue as Timestamp;
 use ComplexHeart\Domain\Model\ValueObjects\UUIDValue as ID;
 
@@ -35,7 +35,7 @@ class OrderCreated implements Event
                 'id' => $order->customer->id,
                 'name' => $order->customer->name,
             ],
-            'orderLines' => $order->lines->map(fn(OrderLine $line) => $line->values()),
+            'orderLines' => $order->lines->map(fn (OrderLine $line) => $line->values()),
             'tags' => $order->tags->values()['value'],
             'created' => $order->created->toIso8601String(),
         ];

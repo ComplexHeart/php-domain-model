@@ -34,8 +34,10 @@ trait HasInvariants
         if (array_key_exists(static::class, static::$_invariantsCache) === false) {
             $invariants = [];
             foreach (get_class_methods(static::class) as $invariant) {
-                if (str_starts_with($invariant, 'invariant') && !in_array($invariant,
-                        ['invariants', 'invariantHandler'])) {
+                if (str_starts_with($invariant, 'invariant') && !in_array(
+                    $invariant,
+                    ['invariants', 'invariantHandler']
+                )) {
                     $invariantRuleName = preg_replace('/[A-Z]([A-Z](?![a-z]))*/', ' $0', $invariant);
                     if (is_null($invariantRuleName)) {
                         continue;
@@ -118,19 +120,18 @@ trait HasInvariants
             ? function (array $violations) use ($handlerFn, $exception): void {
                 $this->{$handlerFn}($violations, $exception);
             }
-            : function (array $violations) use ($exception): void {
-                if (count($violations) === 1) {
-                    throw array_shift($violations);
-                }
+        : function (array $violations) use ($exception): void {
+            if (count($violations) === 1) {
+                throw array_shift($violations);
+            }
 
-                throw new $exception( // @phpstan-ignore-line
-                    sprintf(
-                        "Unable to create %s due: %s",
-                        basename(str_replace('\\', '/', static::class)),
-                        implode(", ", map(fn(Throwable $e): string => $e->getMessage(), $violations)),
-
-                    )
-                );
-            };
+            throw new $exception( // @phpstan-ignore-line
+                sprintf(
+                    "Unable to create %s due: %s",
+                    basename(str_replace('\\', '/', static::class)),
+                    implode(", ", map(fn (Throwable $e): string => $e->getMessage(), $violations)),
+                )
+            );
+        };
     }
 }

@@ -3,33 +3,41 @@
 > Aggregate is a cluster of domain objects that can be treated as a single unit.\
 > -- Martin Fowler
 
-Creating a Value Object is quite easy you only need to use the Trait `IsAggregate` this will
-add the `HasAttributes`, `HasInvariants`, `HasDomainEvents`, `HasIdentity` and `HasEquality` Traits.
-In addition, you could use the `Aggregate` interface to expose the `publishDomainEvents` method.
+An Aggregate is a cluster of associated objects that are treated as a unit for data consistency. Aggregates define clear consistency boundaries and enforce business rules within those boundaries. Creating an Aggregate with Complex Heart is straightforward using the `IsAggregate` trait, which combines `HasAttributes`, `HasInvariants`, `HasDomainEvents`, `HasIdentity`, and `HasEquality` traits. Additionally, you can implement the `Aggregate` interface to expose the `publishDomainEvents` method.
+
+## Getting Started
+
+The `IsAggregate` trait provides everything needed to model aggregates:
+
+* `HasAttributes`: Manage aggregate attributes
+* `HasInvariants`: Define and validate business rules
+* `HasDomainEvents`: Register and publish domain events
+* `HasIdentity`: Provide unique identification
+* `HasEquality`: Enable identity-based equality comparison
 
 ## Example
 
-The following example illustrates the implementation of these components.
+The following example illustrates a complete Aggregate implementation.
+
+#### Modern Approach: Type-Safe Factory Method (Recommended)
 
 ```php
 final class Order implements Aggregate
 {
     use IsAggregate;
 
-    public function __construct(
+    private function __construct(
         public Reference $reference,
         public Customer $customer,
         public OrderLines $lines,
         public Tags $tags,
         public Timestamp $created
-    ) {
-        $this->check();
-    }
+    ) {}
 
     public static function create(int $number, array $customer): Order
     {
         $created = Timestamp::now();
-        $order = new Order(
+        $order = self::make(
             reference: Reference::fromTimestamp($created, $number),
             customer: new Customer(...$customer),
             lines: OrderLines::empty(),
@@ -77,6 +85,53 @@ final class Order implements Aggregate
 }
 ```
 
+**Benefits of using `make()` in factory methods:**
+- Automatic invariant checking when using `make()`
+- Type validation at runtime
+- Cleaner factory method code
+- Consistent with Value Objects and Entities
+
+**Important:** Auto-check ONLY works when using `make()`. In the alternative approach using direct constructor calls, you must manually call `$this->check()` inside the constructor.
+
+#### Alternative: Direct Constructor with Manual Check
+
+If using the constructor directly, you **must** manually call `$this->check()`:
+
+```php
+final class Order implements Aggregate
+{
+    use IsAggregate;
+
+    public function __construct(
+        public Reference $reference,
+        public Customer $customer,
+        public OrderLines $lines,
+        public Tags $tags,
+        public Timestamp $created
+    ) {
+        $this->check(); // Required for invariant validation
+    }
+
+    public static function create(int $number, array $customer): Order
+    {
+        $created = Timestamp::now();
+        $order = new Order(
+            reference: Reference::fromTimestamp($created, $number),
+            customer: new Customer(...$customer),
+            lines: OrderLines::empty(),
+            tags: new Tags(),
+            created: $created
+        );
+
+        $order->registerDomainEvent(new OrderCreated($order));
+
+        return $order;
+    }
+
+    // ... rest of the methods
+}
+```
+
 ## Key Concepts
 
 ### Root Entity
@@ -112,41 +167,50 @@ encapsulation allows for changes to the internal implementation without affectin
 
 ### Domain Events
 
-Domain Events are events that capture a meaningful state change within the domain. When integrated with Aggregates,
-Domain Events enhance the capability to communicate and react to changes effectively. the `HasDomainEvents` trait
-provides some methods to easy the implementation of Domain Events within your aggregates.
+Domain Events are events that capture meaningful state changes within the domain. When integrated with Aggregates, Domain Events enhance the capability to communicate and react to changes effectively. The `HasDomainEvents` trait provides methods to easily implement Domain Events within your aggregates.
+
+#### Registering Domain Events
 
 ```php
-final class Order implements Aggregate
+public static function create(int $number, array $customer): Order
 {
-    use IsAggregate;
+    $created = Timestamp::now();
+    $order = self::make(
+        reference: Reference::fromTimestamp($created, $number),
+        customer: new Customer(...$customer),
+        lines: OrderLines::empty(),
+        tags: new Tags(),
+        created: $created
+    );
 
-    public function __construct(
-        public Reference $reference,
-        public Customer $customer,
-        public OrderLines $lines,
-        public Tags $tags,
-        public Timestamp $created
-    ) {
-        $this->check();
-    }
+    // Register domain event
+    $order->registerDomainEvent(new OrderCreated($order));
 
-    public static function create(int $number, array $customer): Order
-    {
-        $created = Timestamp::now();
-        $order = new Order(
-            reference: Reference::fromTimestamp($created, $number),
-            customer: new Customer(...$customer),
-            lines: OrderLines::empty(),
-            tags: new Tags(),
-            created: $created
-        );
-        
-        $order->registerDomainEvent(new OrderCreated($order));
+    return $order;
+}
 
-        return $order;
-    }
+public function addOrderLine(OrderLine $line): self
+{
+    $this->lines->add($line);
+
+    // Register domain event for line addition
+    $this->registerDomainEvent(new OrderLineAdded($this, $line));
+
+    return $this;
+}
 ```
 
-The method `registerDomainEvent` allows you to register new events that implements the `Event` interface into the
-aggregate.
+The `registerDomainEvent()` method allows you to register events that implement the `Event` interface into the aggregate.
+
+#### Publishing Domain Events
+
+```php
+// Publish all registered events to an event bus
+$order->publishDomainEvents($eventBus);
+```
+
+**Key Points:**
+- Events are registered during state changes
+- Events are published in a batch to maintain transactional consistency
+- The aggregate maintains a list of unpublished events
+- Events should be published after successful persistence

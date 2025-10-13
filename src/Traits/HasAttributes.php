@@ -24,7 +24,7 @@ trait HasAttributes
     {
         return array_filter(
             array_keys(get_class_vars(static::class)),
-            fn(string $item): bool => !str_starts_with($item, '_')
+            fn (string $item): bool => !str_starts_with($item, '_')
         );
     }
 
@@ -118,7 +118,7 @@ trait HasAttributes
         return sprintf(
             '%s%s%s',
             $prefix,
-            implode('', map(fn(string $chunk): string => ucfirst($chunk), explode('_', $id))),
+            implode('', map(fn (string $chunk): string => ucfirst($chunk), explode('_', $id))),
             $suffix
         );
     }

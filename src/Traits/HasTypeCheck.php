@@ -28,8 +28,8 @@ trait HasTypeCheck
 
         $primitives = ['integer', 'boolean', 'float', 'string', 'array', 'object', 'callable'];
         $validation = in_array($validType, $primitives)
-            ? fn($value): bool => gettype($value) === $validType
-            : fn($value): bool => $value instanceof $validType;
+            ? fn ($value): bool => gettype($value) === $validType
+            : fn ($value): bool => $value instanceof $validType;
 
         return $validation($value);
     }

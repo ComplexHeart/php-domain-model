@@ -14,5 +14,4 @@ use RuntimeException;
  */
 class InstantiationException extends RuntimeException
 {
-
 }

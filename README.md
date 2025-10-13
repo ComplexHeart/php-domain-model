@@ -26,4 +26,13 @@ On top of those base traits **Complex Heart** provide ready to use compositions:
 - `IsEntity` composed by `IsModel`, `HasIdentity`, `HasEquality`.
 - `IsAggregate` composed by `IsEntity`, `HasDomainEvents`.
 
-For more information please check the wiki.
+## Key Features
+
+- **Type-Safe Factory Method**: The `make()` static factory validates constructor parameters at runtime with clear error messages
+- **Automatic Invariant Checking**: When using `make()`, Value Objects and Entities automatically validate invariants after construction (no manual `$this->check()` needed)
+- **Readonly Properties Support**: Full compatibility with PHP 8.1+ readonly properties
+- **PHPStan Level 8**: Complete static analysis support
+
+> **Note:** Automatic invariant checking only works when using the `make()` factory method. Direct constructor calls require manual `$this->check()` in the constructor.
+
+For more information and usage examples, please check the wiki.

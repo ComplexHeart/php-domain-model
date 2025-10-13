@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use ComplexHeart\Domain\Model\Errors\ImmutabilityError;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
-use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Reference;
-use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Tags;
+use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Reference;
+use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Tags;
 use ComplexHeart\Domain\Model\ValueObjects\ArrayValue;
 use ComplexHeart\Domain\Model\ValueObjects\BooleanValue;
 use ComplexHeart\Domain\Model\ValueObjects\DateTimeValue;
@@ -35,7 +35,7 @@ test('StringValue should return false on not equal StringValue Objects.', functi
     ->group('Unit');
 
 test('StringValue should throw exception on min length invariant violation.', function () {
-    new class('a') extends StringValue {
+    new class ('a') extends StringValue {
         protected int $_minLength = 5;
     };
 })
@@ -43,7 +43,7 @@ test('StringValue should throw exception on min length invariant violation.', fu
     ->group('Unit');
 
 test('StringValue should throw exception on max length invariant violation.', function () {
-    new class('this is long') extends StringValue {
+    new class ('this is long') extends StringValue {
         protected int $_maxLength = 5;
     };
 })
@@ -51,7 +51,7 @@ test('StringValue should throw exception on max length invariant violation.', fu
     ->group('Unit');
 
 test('StringValue should throw exception on regex invariant violation.', function () {
-    new class('INVALID') extends StringValue {
+    new class ('INVALID') extends StringValue {
         protected string $_pattern = '[a-z]';
     };
 })
@@ -59,7 +59,7 @@ test('StringValue should throw exception on regex invariant violation.', functio
     ->group('Unit');
 
 test('BooleanValue should create a valid BooleanValue Object.', function () {
-    $vo = new class(true) extends BooleanValue {
+    $vo = new class (true) extends BooleanValue {
         protected array $_strings = [
             'true' => 'Yes',
             'false' => 'No',
@@ -70,7 +70,7 @@ test('BooleanValue should create a valid BooleanValue Object.', function () {
     ->group('Unit');
 
 test('IntegerValue should create a valid IntegerValue Object.', function () {
-    $vo = new class(1) extends IntegerValue {
+    $vo = new class (1) extends IntegerValue {
         protected int $_maxValue = 100;
 
         protected int $_minValue = 1;
@@ -80,7 +80,7 @@ test('IntegerValue should create a valid IntegerValue Object.', function () {
     ->group('Unit');
 
 test('IntegerValue should throw exception on min value invariant violation.', function () {
-    new class(0) extends IntegerValue {
+    new class (0) extends IntegerValue {
         protected int $_maxValue = 100;
 
         protected int $_minValue = 1;
@@ -90,7 +90,7 @@ test('IntegerValue should throw exception on min value invariant violation.', fu
     ->group('Unit');
 
 test('IntegerValue should throw exception on mix value invariant violation.', function () {
-    new class(101) extends IntegerValue {
+    new class (101) extends IntegerValue {
         protected int $_maxValue = 100;
 
         protected int $_minValue = 1;
@@ -100,14 +100,14 @@ test('IntegerValue should throw exception on mix value invariant violation.', fu
     ->group('Unit');
 
 test('FloatValue should create a valid FloatValue Object.', function () {
-    $vo = new class(3.14) extends FloatValue {
+    $vo = new class (3.14) extends FloatValue {
     };
     expect((string) $vo)->toEqual('3.14');
 })
     ->group('Unit');
 
 test('ArrayValue should create a valid ArrayValue Object.', function () {
-    $vo = new class([1]) extends ArrayValue {
+    $vo = new class ([1]) extends ArrayValue {
         protected int $_minItems = 1;
 
         protected int $_maxItems = 10;
@@ -125,7 +125,7 @@ test('ArrayValue should throw exception on invalid item type.', function () {
     ->group('Unit');
 
 test('ArrayValue should throw exception on invalid minimum number of items.', function () {
-    new class([]) extends ArrayValue {
+    new class ([]) extends ArrayValue {
         protected int $_minItems = 2;
 
         protected int $_maxItems = 0;
@@ -137,7 +137,7 @@ test('ArrayValue should throw exception on invalid minimum number of items.', fu
     ->group('Unit');
 
 test('ArrayValue should throw exception on invalid maximum number of items.', function () {
-    new class([1, 2]) extends ArrayValue {
+    new class ([1, 2]) extends ArrayValue {
         protected int $_minItems = 0;
 
         protected int $_maxItems = 1;
@@ -149,7 +149,7 @@ test('ArrayValue should throw exception on invalid maximum number of items.', fu
     ->group('Unit');
 
 test('ArrayValue should implement correctly ArrayAccess interface.', function () {
-    $vo = new class(['one', 'two']) extends ArrayValue {
+    $vo = new class (['one', 'two']) extends ArrayValue {
         protected int $_minItems = 1;
 
         protected int $_maxItems = 10;
@@ -165,7 +165,7 @@ test('ArrayValue should implement correctly ArrayAccess interface.', function ()
     ->group('Unit');
 
 test('ArrayValue should throw exception on deleting a value.', function () {
-    $vo = new class(['one', 'two']) extends ArrayValue {
+    $vo = new class (['one', 'two']) extends ArrayValue {
         protected int $_minItems = 1;
 
         protected int $_maxItems = 10;
@@ -178,7 +178,7 @@ test('ArrayValue should throw exception on deleting a value.', function () {
     ->throws(ImmutabilityError::class);
 
 test('ArrayValue should throw exception on changing a value.', function () {
-    $vo = new class(['one', 'two']) extends ArrayValue {
+    $vo = new class (['one', 'two']) extends ArrayValue {
         protected int $_minItems = 1;
 
         protected int $_maxItems = 10;
@@ -191,7 +191,7 @@ test('ArrayValue should throw exception on changing a value.', function () {
     ->throws(ImmutabilityError::class);
 
 test('ArrayValue should be converted to string correctly.', function () {
-    $vo = new class(['one', 'two']) extends ArrayValue {
+    $vo = new class (['one', 'two']) extends ArrayValue {
         protected int $_minItems = 1;
 
         protected int $_maxItems = 10;
@@ -237,8 +237,8 @@ test('DateTimeValue should create a valid DateTimeValue Object.', function () {
 
 test('EnumValue should create a valid EnumValue Object.', function () {
     $vo = new class ('one') extends EnumValue {
-        const ONE = 'one';
-        const TWO = 'two';
+        public const ONE = 'one';
+        public const TWO = 'two';
     };
 
     expect($vo->value())->toBe('one')

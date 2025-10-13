@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain;
+namespace ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain;
 
 use ComplexHeart\Domain\Model\TypedCollection;
 
