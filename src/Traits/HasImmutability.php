@@ -26,7 +26,7 @@ trait HasImmutability
      * @param  mixed  $_
      * @return void
      */
-    final public function __set(string $name, $_): void
+    final public function __set(string $name, mixed $_): void
     {
         $class = static::class;
         throw new ImmutabilityError("Cannot modify property $name from immutable $class object.");

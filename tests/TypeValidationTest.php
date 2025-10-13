@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use ComplexHeart\Domain\Model\Exceptions\InstantiationException;
+use ComplexHeart\Domain\Model\IsModel;
 use ComplexHeart\Domain\Model\Test\Fixtures\TypeSafety\Email;
 use ComplexHeart\Domain\Model\Test\Fixtures\TypeSafety\Money;
 use ComplexHeart\Domain\Model\Test\Fixtures\TypeSafety\ComplexModel;
@@ -240,3 +242,51 @@ test('new() should throw TypeError for invalid types', function () {
 test('new() should validate union types', function () {
     Money::new(['invalid'], 'USD');
 })->throws(TypeError::class, 'parameter "amount" must be of type int|float');
+
+// InstantiationException tests
+test('InstantiationException should be thrown when make() is called on class without constructor', function () {
+    (new class () {
+        use IsModel;
+
+        public function __toString(): string
+        {
+            return 'no-constructor';
+        }
+    })::make();
+})
+    ->throws(InstantiationException::class, 'must have a constructor')
+    ->group('Unit');
+
+test('InstantiationException should extend RuntimeException', function () {
+    $exception = new InstantiationException('test message');
+
+    expect($exception)->toBeInstanceOf(RuntimeException::class)
+        ->and($exception->getMessage())->toBe('test message');
+})
+    ->group('Unit');
+
+test('InstantiationException should support error codes', function () {
+    $exception = new InstantiationException('test message', 500);
+
+    expect($exception->getCode())->toBe(500);
+})
+    ->group('Unit');
+
+test('InstantiationException should support previous exceptions', function () {
+    $previous = new Exception('Previous error');
+    $exception = new InstantiationException('test message', 0, $previous);
+
+    expect($exception->getPrevious())->toBe($previous);
+})
+    ->group('Unit');
+
+// Model tests
+test('Model values should be mapped by custom function successfully', function () {
+    $money = Money::make(100, 'USD');
+
+    $values = $money->values(fn ($attribute) => "-->$attribute");
+
+    expect($values['amount'])->toStartWith('-->')
+        ->and($values['currency'])->toStartWith('-->');
+})
+    ->group('Unit');

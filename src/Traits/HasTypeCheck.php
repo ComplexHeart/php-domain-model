@@ -26,7 +26,17 @@ trait HasTypeCheck
             return true;
         }
 
-        $primitives = ['integer', 'boolean', 'float', 'string', 'array', 'object', 'callable'];
+        // Handle float/double equivalence (PHP uses 'double' internally)
+        if ($validType === 'float') {
+            $validType = 'double';
+        }
+
+        // Handle callable type check
+        if ($validType === 'callable') {
+            return is_callable($value);
+        }
+
+        $primitives = ['integer', 'boolean', 'double', 'string', 'array', 'object'];
         $validation = in_array($validType, $primitives)
             ? fn ($value): bool => gettype($value) === $validType
             : fn ($value): bool => $value instanceof $validType;
