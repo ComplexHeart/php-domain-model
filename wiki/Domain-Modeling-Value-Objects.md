@@ -66,42 +66,80 @@ $magenta = new Color('ff00ff'); // throws InvariantViolation: Value must be hexa
 
 ### Attribute Initialization
 
-Use
-the [Constructor property promotion](https://www.php.net/manual/en/language.oop5.decon.php#language.oop5.decon.constructor.promotion)
-to initialize the attributes:
+#### Modern Approach: Type-Safe Factory Method (Recommended)
+
+Use the `make()` static factory method for type-safe instantiation with automatic invariant checking:
 
 ```php
-class SomeValueObject implements ValueObject 
+class Email implements ValueObject
 {
     use IsValueObject;
 
-    public function __construct(public string $value) 
+    public function __construct(private readonly string $value) {}
+
+    protected function invariantValidFormat(): bool
     {
-        $this->check();
+        return filter_var($this->value, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
     }
 }
+
+// Type-safe instantiation with automatic validation
+$email = Email::make('user@example.com'); // ✅ Valid
+$email = Email::make(123); // ❌ TypeError: parameter "value" must be of type string, int given
+$email = Email::make('invalid'); // ❌ InvariantViolation: Valid format
 ```
 
-Alternatively, use the `initialize` method to set the initial values of the attributes. This ensures that the Value
-Object is properly initialized.
+**Benefits of `make()`:**
+- Runtime type validation with clear error messages
+- Automatic invariant checking after construction
+- Works seamlessly with readonly properties
+- PHPStan level 8 compliant
+
+**Important:** Auto-check ONLY works when using `make()`. Direct constructor calls do NOT trigger automatic invariant checking, so you must manually call `$this->check()` in the constructor.
+
+#### Alternative: Constructor Property Promotion with Manual Check
+
+If you prefer direct constructor calls, you **must** manually call `$this->check()`:
 
 ```php
-class SomeValueObject implements ValueObject 
+class SomeValueObject implements ValueObject
 {
     use IsValueObject;
-    
+
+    public function __construct(public string $value)
+    {
+        $this->check(); // Required for invariant validation
+    }
+}
+
+// Direct constructor call requires manual check() in constructor
+$vo = new SomeValueObject('value'); // check() is called inside constructor
+```
+
+Use [Constructor property promotion](https://www.php.net/manual/en/language.oop5.decon.php#language.oop5.decon.constructor.promotion) for cleaner syntax.
+
+#### Legacy: Initialize Method (Deprecated)
+
+The `initialize` method is deprecated and will be removed in v1.0.0. It's incompatible with readonly properties:
+
+```php
+class SomeValueObject implements ValueObject
+{
+    use IsValueObject;
+
     public string $value;
 
-    public function __construct(string $value) 
+    public function __construct(string $value)
     {
-        $this->initialize(['value' => $value]);
+        $this->initialize(['value' => $value]); // Deprecated
     }
 }
 ```
-
-The `initialize` method takes an array of properties to hydrate the object. Whether the associative array
-contains additional properties, the `initialize` method selectively considers only those belonging to the object,
-matching the property names using the respective keys.
 
 ### Immutability
 

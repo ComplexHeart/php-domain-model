@@ -24,6 +24,44 @@ consistent interface for all Entities.
 
 Let's illustrate the implementation of a `Customer` Entity using the provided traits and interface:
 
+#### Modern Approach: Type-Safe Factory Method (Recommended)
+
+```php
+final class Customer implements Entity
+{
+    use IsEntity;
+
+    public function __construct(
+        private readonly UUIDValue $id,
+        public string $name,
+    ) {}
+
+    public function id(): Identifier
+    {
+        return $this->id;
+    }
+
+    public function __toString(): string
+    {
+        return "$this->name ($this->id)";
+    }
+}
+
+// Type-safe instantiation with automatic invariant validation
+$customer = Customer::make(UUIDValue::random(), 'Vincent Vega');
+```
+
+**Benefits:**
+- Automatic invariant checking when using `make()`
+- Type validation at runtime
+- Cleaner constructor code
+
+**Important:** Auto-check ONLY works when using `make()`. If you call the constructor directly (`new Customer(...)`), you must manually call `$this->check()` inside the constructor.
+
+#### Alternative: Direct Constructor with Manual Check
+
+If you need to use the constructor directly, you **must** manually call `$this->check()`:
+
 ```php
 final class Customer implements Entity
 {
@@ -33,7 +71,7 @@ final class Customer implements Entity
         public readonly UUIDValue $id,
         public string $name,
     ) {
-        $this->check();
+        $this->check(); // Required for invariant validation
     }
 
     public function id(): Identifier
