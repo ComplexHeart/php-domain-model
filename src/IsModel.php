@@ -10,8 +10,9 @@ use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
+use ReflectionParameter;
 use ReflectionUnionType;
-use RuntimeException;
+use ComplexHeart\Domain\Model\Exceptions\InstantiationException;
 use TypeError;
 
 /**
@@ -51,7 +52,7 @@ trait IsModel
         $constructor = $reflection->getConstructor();
 
         if (!$constructor) {
-            throw new RuntimeException(
+            throw new InstantiationException(
                 sprintf('%s must have a constructor to use make()', static::class)
             );
         }
@@ -121,46 +122,54 @@ trait IsModel
 
         // Validate types for each parameter
         foreach ($constructorParams as $index => $param) {
-            if (!isset($params[$index])) {
-                continue; // Optional parameter not provided
+            if (isset($params[$index])) {
+                self::validateParameterType($param, $params[$index]);
             }
+        }
+    }
 
-            $value = $params[$index];
-            $type = $param->getType();
 
-            if ($type === null) {
-                continue; // No type hint
-            }
+    /**
+     * Validate a single parameter's type.
+     *
+     * @param ReflectionParameter $param
+     * @param mixed $value
+     * @return void
+     * @throws TypeError
+     */
+    private static function validateParameterType(ReflectionParameter $param, mixed $value): void
+    {
+        $type = $param->getType();
 
-            $isValid = false;
-            $expectedTypes = '';
+        if ($type === null) {
+            return; // No type hint
+        }
 
-            if ($type instanceof ReflectionNamedType) {
-                // Single type
-                $isValid = self::validateType($value, $type->getName(), $type->allowsNull());
-                $expectedTypes = $type->getName();
-            } elseif ($type instanceof ReflectionUnionType) {
-                // Union type (e.g., int|float|string)
-                $isValid = self::validateUnionType($value, $type);
-                $expectedTypes = implode('|', array_map(
-                    fn ($t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
-                    $type->getTypes()
-                ));
-            } else {
-                continue; // Intersection types or other complex types not supported yet
-            }
+        if ($type instanceof ReflectionNamedType) {
+            // Single type
+            $isValid = self::validateType($value, $type->getName(), $type->allowsNull());
+            $expectedTypes = $type->getName();
+        } elseif ($type instanceof ReflectionUnionType) {
+            // Union type (e.g., int|float|string)
+            $isValid = self::validateUnionType($value, $type);
+            $expectedTypes = implode('|', array_map(
+                fn ($t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
+                $type->getTypes()
+            ));
+        } else {
+            return; // Intersection types or other complex types not supported yet
+        }
 
-            if (!$isValid) {
-                throw new TypeError(
-                    sprintf(
-                        '%s::make() parameter "%s" must be of type %s, %s given',
-                        basename(str_replace('\\', '/', static::class)),
-                        $param->getName(),
-                        $expectedTypes,
-                        get_debug_type($value)
-                    )
-                );
-            }
+        if (!$isValid) {
+            throw new TypeError(
+                sprintf(
+                    '%s::make() parameter "%s" must be of type %s, %s given',
+                    basename(str_replace('\\', '/', static::class)),
+                    $param->getName(),
+                    $expectedTypes,
+                    get_debug_type($value)
+                )
+            );
         }
     }
 
