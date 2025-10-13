@@ -49,11 +49,19 @@ final class Customer implements Entity
 
 // Type-safe instantiation with automatic invariant validation
 $customer = Customer::make(UUIDValue::random(), 'Vincent Vega');
+
+// Named parameters for improved readability (PHP 8.0+)
+$customer = Customer::make(
+    id: UUIDValue::random(),
+    name: 'Vincent Vega'
+);
 ```
 
 **Benefits:**
 - Automatic invariant checking when using `make()`
-- Type validation at runtime
+- Type validation at runtime with clear error messages
+- Named parameter support for improved readability
+- Union type support (e.g., `int|float`, `string|null`)
 - Cleaner constructor code
 
 **Important:** Auto-check ONLY works when using `make()`. If you call the constructor directly (`new Customer(...)`), you must manually call `$this->check()` inside the constructor.

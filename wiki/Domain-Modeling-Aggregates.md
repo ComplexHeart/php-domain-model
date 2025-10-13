@@ -87,9 +87,13 @@ final class Order implements Aggregate
 
 **Benefits of using `make()` in factory methods:**
 - Automatic invariant checking when using `make()`
-- Type validation at runtime
+- Type validation at runtime with clear error messages
+- Named parameter support for improved readability (as shown above)
+- Union type support (e.g., `int|float`, `string|null`)
 - Cleaner factory method code
 - Consistent with Value Objects and Entities
+
+**Why named parameters?** As shown in the example above, using named parameters (`reference:`, `customer:`, etc.) makes the code self-documenting and prevents parameter mix-ups, especially important in Aggregates with many constructor parameters.
 
 **Important:** Auto-check ONLY works when using `make()`. In the alternative approach using direct constructor calls, you must manually call `$this->check()` inside the constructor.
 
