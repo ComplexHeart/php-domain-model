@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use ComplexHeart\Domain\Model\Errors\ImmutabilityError;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
-use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Errors\InvalidPriceError;
-use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Price;
+use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Errors\InvalidPriceError;
+use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Price;
 use ComplexHeart\Domain\Model\Traits\HasInvariants;
 
 test('Object with HasImmutability should throw ImmutabilityError for any update properties attempts.', function () {
@@ -43,7 +43,7 @@ test('Object with HasInvariants should execute custom invariant handler as closu
 
         public function __construct()
         {
-            $this->check(fn(array $violations) => throw new ValueError('From custom Handler'));
+            $this->check(fn (array $violations) => throw new ValueError('From custom Handler'));
         }
 
         protected function invariantAlwaysFail(): bool

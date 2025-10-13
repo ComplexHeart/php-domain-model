@@ -93,8 +93,8 @@ abstract class ArrayValue extends Value implements IteratorAggregate, ArrayAcces
         if ($this->_valueType !== 'mixed') {
             $primitives = ['integer', 'boolean', 'float', 'string', 'array', 'object', 'callable'];
             $check = in_array($this->_valueType, $primitives)
-                ? fn($value): bool => gettype($value) !== $this->_valueType
-                : fn($value): bool => !($value instanceof $this->_valueType);
+                ? fn ($value): bool => gettype($value) !== $this->_valueType
+                : fn ($value): bool => !($value instanceof $this->_valueType);
 
             foreach ($this->value as $item) {
                 if ($check($item)) {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\ValueObjects;
 
-
 use ComplexHeart\Domain\Contracts\Model\Identifier;
 use Exception;
 use Ramsey\Uuid\Codec\TimestampFirstCombCodec;
@@ -66,7 +65,7 @@ class UUIDValue extends Value implements Identifier
     public static function random(bool $ordered = true): self
     {
         if ($ordered) {
-            $factory = new UuidFactory;
+            $factory = new UuidFactory();
 
             $factory->setRandomGenerator(new CombGenerator(
                 $factory->getRandomGenerator(),

@@ -16,7 +16,6 @@ use ComplexHeart\Domain\Model\Traits\HasDomainEvents;
  * @see https://martinfowler.com/bliki/EvansClassification.html
  *
  * @author Unay Santisteban <usantisteban@othercode.io>
- * @package ComplexHeart\Domain\Model\Traits
  */
 trait IsAggregate
 {

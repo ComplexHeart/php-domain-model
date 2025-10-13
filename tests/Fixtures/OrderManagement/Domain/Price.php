@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain;
+namespace ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain;
 
 use ComplexHeart\Domain\Contracts\Model\ValueObject;
 use ComplexHeart\Domain\Model\IsValueObject;
-use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Errors\InvalidPriceError;
+use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Errors\InvalidPriceError;
 
 /**
  * Class Price

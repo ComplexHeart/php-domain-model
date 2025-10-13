@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace ComplexHeart\Domain\Model\Test\OrderManagement\Domain;
+namespace ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain;
 
 use ComplexHeart\Domain\Contracts\Model\Aggregate;
 use ComplexHeart\Domain\Contracts\Model\Identifier;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
 use ComplexHeart\Domain\Model\IsAggregate;
-use ComplexHeart\Domain\Model\Test\OrderManagement\Domain\Events\OrderCreated;
+use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Events\OrderCreated;
 use ComplexHeart\Domain\Model\ValueObjects\DateTimeValue as Timestamp;
 
 /**
