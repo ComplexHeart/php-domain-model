@@ -92,15 +92,52 @@ class Email implements ValueObject
 $email = Email::make('user@example.com'); // ✅ Valid
 $email = Email::make(123); // ❌ TypeError: parameter "value" must be of type string, int given
 $email = Email::make('invalid'); // ❌ InvariantViolation: Valid format
+
+// Named parameters for improved readability (PHP 8.0+)
+$email = Email::make(value: 'user@example.com'); // ✅ Self-documenting code
 ```
 
 **Benefits of `make()`:**
 - Runtime type validation with clear error messages
 - Automatic invariant checking after construction
+- Named parameter support for improved readability
+- Union type support (e.g., `int|float`, `string|null`)
 - Works seamlessly with readonly properties
 - PHPStan level 8 compliant
 
 **Important:** Auto-check ONLY works when using `make()`. Direct constructor calls do NOT trigger automatic invariant checking, so you must manually call `$this->check()` in the constructor.
+
+#### Named Parameters Example
+
+Named parameters (PHP 8.0+) make code more readable and allow parameters in any order:
+
+```php
+final class Money implements ValueObject
+{
+    use IsValueObject;
+
+    public function __construct(
+        private readonly int|float $amount,
+        private readonly string $currency
+    ) {}
+
+    protected function invariantPositiveAmount(): bool
+    {
+        return $this->amount > 0;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('%s %s', $this->amount, $this->currency);
+    }
+}
+
+// All equivalent, choose the most readable for your context:
+$money = Money::make(100, 'USD');                    // Positional
+$money = Money::make(amount: 100, currency: 'USD'); // Named
+$money = Money::make(currency: 'USD', amount: 100); // Named, different order
+$money = Money::make(100, currency: 'USD');         // Mixed
+```
 
 #### Alternative: Constructor Property Promotion with Manual Check
 

@@ -30,6 +30,8 @@ On top of those base traits **Complex Heart** provide ready to use compositions:
 
 - **Type-Safe Factory Method**: The `make()` static factory validates constructor parameters at runtime with clear error messages
 - **Automatic Invariant Checking**: When using `make()`, Value Objects and Entities automatically validate invariants after construction (no manual `$this->check()` needed)
+- **Named Parameter Support**: Full support for PHP 8.0+ named parameters for improved readability and flexibility
+- **Union Type Support**: Complete support for PHP 8.0+ union types (e.g., `int|float`, `string|null`)
 - **Readonly Properties Support**: Full compatibility with PHP 8.1+ readonly properties
 - **PHPStan Level 8**: Complete static analysis support
 
