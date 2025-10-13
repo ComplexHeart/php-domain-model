@@ -5,6 +5,7 @@ declare(strict_types=1);
 use ComplexHeart\Domain\Model\Test\Fixtures\TypeSafety\Email;
 use ComplexHeart\Domain\Model\Test\Fixtures\TypeSafety\Money;
 use ComplexHeart\Domain\Model\Test\Fixtures\TypeSafety\ComplexModel;
+use ComplexHeart\Domain\Model\Test\Fixtures\TypeSafety\FlexibleValue;
 
 test('make() should create instance with valid types', function () {
     $email = Email::make('test@example.com');
@@ -62,8 +63,7 @@ test('make() error message shows parameter name', function () {
     try {
         Money::make('invalid', 'USD');
     } catch (TypeError $e) {
-        // PHP's native error uses "Argument" not "parameter"
-        expect($e->getMessage())->toContain('$amount');
+        expect($e->getMessage())->toContain('parameter "amount"');
     }
 });
 
@@ -79,3 +79,66 @@ test('direct constructor bypasses type validation', function () {
     // Direct constructor call with wrong type will fail at PHP level
     new Email(123);
 })->throws(TypeError::class);
+
+test('make() should accept int for int|float union type', function () {
+    $money = Money::make(100, 'USD');
+
+    expect($money)->toBeInstanceOf(Money::class)
+        ->and((string) $money)->toBe('100 USD');
+});
+
+test('make() should accept float for int|float union type', function () {
+    $money = Money::make(99.99, 'EUR');
+
+    expect($money)->toBeInstanceOf(Money::class)
+        ->and((string) $money)->toBe('99.99 EUR');
+});
+
+test('make() should accept int for int|float|string union type', function () {
+    $value = FlexibleValue::make(42);
+
+    expect($value)->toBeInstanceOf(FlexibleValue::class)
+        ->and((string) $value)->toBe('42');
+});
+
+test('make() should accept float for int|float|string union type', function () {
+    $value = FlexibleValue::make(3.14);
+
+    expect($value)->toBeInstanceOf(FlexibleValue::class)
+        ->and((string) $value)->toBe('3.14');
+});
+
+test('make() should accept string for int|float|string union type', function () {
+    $value = FlexibleValue::make('text');
+
+    expect($value)->toBeInstanceOf(FlexibleValue::class)
+        ->and((string) $value)->toBe('text');
+});
+
+test('make() should reject invalid type for union type', function () {
+    Money::make(['not', 'valid'], 'USD');
+})->throws(TypeError::class, 'parameter "amount" must be of type int|float');
+
+test('make() should handle nullable union types', function () {
+    $value1 = FlexibleValue::make(42, 'Label');
+    $value2 = FlexibleValue::make(42, null);
+
+    expect($value1)->toBeInstanceOf(FlexibleValue::class)
+        ->and($value2)->toBeInstanceOf(FlexibleValue::class);
+});
+
+test('make() should accept null for nullable union type', function () {
+    $value = FlexibleValue::make('test', null);
+
+    expect($value)->toBeInstanceOf(FlexibleValue::class);
+});
+
+test('make() union type error shows all possible types', function () {
+    try {
+        FlexibleValue::make(['array']);
+    } catch (TypeError $e) {
+        // Union type order depends on PHP's internal representation
+        expect($e->getMessage())->toMatch('/int\|float\|string|string\|int\|float/')
+            ->and($e->getMessage())->toContain('array given');
+    }
+});

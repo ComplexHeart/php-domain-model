@@ -6,6 +6,13 @@ namespace ComplexHeart\Domain\Model;
 
 use ComplexHeart\Domain\Model\Traits\HasAttributes;
 use ComplexHeart\Domain\Model\Traits\HasInvariants;
+use InvalidArgumentException;
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionNamedType;
+use ReflectionUnionType;
+use RuntimeException;
+use TypeError;
 
 /**
  * Trait IsModel
@@ -35,16 +42,16 @@ trait IsModel
      *
      * @param mixed ...$params Constructor parameters
      * @return static
-     * @throws \InvalidArgumentException When required parameters are missing
-     * @throws \TypeError When parameter types don't match
+     * @throws InvalidArgumentException When required parameters are missing
+     * @throws TypeError When parameter types don't match
      */
     final public static function make(mixed ...$params): static
     {
-        $reflection = new \ReflectionClass(static::class);
+        $reflection = new ReflectionClass(static::class);
         $constructor = $reflection->getConstructor();
 
         if (!$constructor) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 sprintf('%s must have a constructor to use make()', static::class)
             );
         }
@@ -66,14 +73,14 @@ trait IsModel
     /**
      * Validate parameters match constructor signature.
      *
-     * @param \ReflectionMethod $constructor
+     * @param ReflectionMethod $constructor
      * @param array<int, mixed> $params
      * @return void
-     * @throws \InvalidArgumentException
-     * @throws \TypeError
+     * @throws InvalidArgumentException
+     * @throws TypeError
      */
     private static function validateConstructorParameters(
-        \ReflectionMethod $constructor,
+        ReflectionMethod $constructor,
         array $params
     ): void {
         $constructorParams = $constructor->getParameters();
@@ -83,7 +90,7 @@ trait IsModel
         if (count($params) < $required) {
             $missing = array_slice($constructorParams, count($params), $required - count($params));
             $names = array_map(fn ($p) => $p->getName(), $missing);
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     '%s::make() missing required parameters: %s',
                     basename(str_replace('\\', '/', static::class)),
@@ -101,20 +108,35 @@ trait IsModel
             $value = $params[$index];
             $type = $param->getType();
 
-            if (!$type instanceof \ReflectionNamedType) {
-                continue; // No type hint or union type
+            if ($type === null) {
+                continue; // No type hint
             }
 
-            $typeName = $type->getName();
-            $isValid = self::validateType($value, $typeName, $type->allowsNull());
+            $isValid = false;
+            $expectedTypes = '';
+
+            if ($type instanceof ReflectionNamedType) {
+                // Single type
+                $isValid = self::validateType($value, $type->getName(), $type->allowsNull());
+                $expectedTypes = $type->getName();
+            } elseif ($type instanceof ReflectionUnionType) {
+                // Union type (e.g., int|float|string)
+                $isValid = self::validateUnionType($value, $type);
+                $expectedTypes = implode('|', array_map(
+                    fn($t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
+                    $type->getTypes()
+                ));
+            } else {
+                continue; // Intersection types or other complex types not supported yet
+            }
 
             if (!$isValid) {
-                throw new \TypeError(
+                throw new TypeError(
                     sprintf(
                         '%s::make() parameter "%s" must be of type %s, %s given',
                         basename(str_replace('\\', '/', static::class)),
                         $param->getName(),
-                        $typeName,
+                        $expectedTypes,
                         get_debug_type($value)
                     )
                 );
@@ -148,6 +170,45 @@ trait IsModel
             'mixed' => true,
             default => $value instanceof $typeName
         };
+    }
+
+    /**
+     * Validate a value matches one of the types in a union type.
+     *
+     * @param mixed $value
+     * @param ReflectionUnionType $unionType
+     * @return bool
+     */
+    private static function validateUnionType(mixed $value, ReflectionUnionType $unionType): bool
+    {
+        // Check if null is allowed in the union
+        $allowsNull = $unionType->allowsNull();
+
+        if ($value === null) {
+            return $allowsNull;
+        }
+
+        // Try to match against each type in the union
+        foreach ($unionType->getTypes() as $type) {
+            if (!$type instanceof ReflectionNamedType) {
+                continue; // Skip non-named types (shouldn't happen in practice)
+            }
+
+            $typeName = $type->getName();
+
+            // Skip 'null' type as we already handled it
+            if ($typeName === 'null') {
+                continue;
+            }
+
+            // If value matches this type, union is satisfied
+            if (self::validateType($value, $typeName, false)) {
+                return true;
+            }
+        }
+
+        // Value didn't match any type in the union
+        return false;
     }
 
     /**
