@@ -76,6 +76,21 @@ trait IsModel
     }
 
     /**
+     * Alias for make() method - more idiomatic for domain objects.
+     *
+     * Example: Customer::new(id: $id, name: 'John Doe')
+     *
+     * @param mixed ...$params Constructor parameters
+     * @return static
+     * @throws InvalidArgumentException When required parameters are missing
+     * @throws TypeError When parameter types don't match
+     */
+    final public static function new(mixed ...$params): static
+    {
+        return static::make(...$params);
+    }
+
+    /**
      * Validate parameters match constructor signature.
      *
      * @param ReflectionMethod $constructor
@@ -128,7 +143,7 @@ trait IsModel
                 // Union type (e.g., int|float|string)
                 $isValid = self::validateUnionType($value, $type);
                 $expectedTypes = implode('|', array_map(
-                    fn($t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
+                    fn ($t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
                     $type->getTypes()
                 ));
             } else {
