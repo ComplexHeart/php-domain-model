@@ -1,12 +1,14 @@
-name: Documentation
+name: SonarCloud
 
 on:
   push:
     branches: [ 'main' ]
+  pull_request:
+    types: [ 'opened', 'synchronize', 'reopened' ]
 
 jobs:
-  publish:
-    name: Publish Documentation
+  sonarcloud:
+    name: SonarCloud Analysis
     runs-on: ubuntu-latest
 
     steps:
@@ -19,7 +21,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring
           coverage: xdebug
           tools: composer:v2
 
@@ -36,12 +37,18 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-      - name: Copy Files
-        run: cp README.md wiki/Home.md
+      - name: Execute Unit, Integration and Acceptance Tests
+        run: composer test
 
-      - name: Publish documentation to Wiki
-        uses: SwiftDocOrg/github-wiki-publish-action@v1
+      - name: Fix paths in coverage reports for Sonar
+        run: |
+          sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage.xml
+          sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' test.xml
+
+      - name: Run SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
         with:
-          path: "wiki/"
+          projectBaseDir: .
         env:
-          GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

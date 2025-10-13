@@ -11,3 +11,4 @@ composer.lock
 wiki/Home.md
 /.phpunit.cache
 .phpactor.json
+/.serena/
