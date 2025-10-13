@@ -56,6 +56,11 @@ trait IsModel
             );
         }
 
+        // Handle named parameters if provided
+        if (self::hasNamedParameters($params)) {
+            $params = self::mapNamedToPositional($constructor, $params);
+        }
+
         // Validate parameters against constructor signature
         // array_values ensures we have a proper indexed array
         self::validateConstructorParameters($constructor, array_values($params));
@@ -209,6 +214,74 @@ trait IsModel
 
         // Value didn't match any type in the union
         return false;
+    }
+
+    /**
+     * Check if parameters include named parameters.
+     *
+     * @param array<int|string, mixed> $params
+     * @return bool
+     */
+    private static function hasNamedParameters(array $params): bool
+    {
+        if (empty($params)) {
+            return false;
+        }
+
+        // Named parameters have string keys
+        // Positional parameters have sequential integer keys [0, 1, 2, ...]
+        return array_keys($params) !== range(0, count($params) - 1);
+    }
+
+    /**
+     * Map named parameters to positional parameters based on constructor signature.
+     *
+     * Supports three scenarios:
+     * 1. Pure named parameters: make(value: 'test')
+     * 2. Pure positional parameters: make('test')
+     * 3. Mixed parameters: make(1, name: 'test', description: 'desc')
+     *
+     * @param ReflectionMethod $constructor
+     * @param array<int|string, mixed> $params
+     * @return array<int, mixed>
+     * @throws InvalidArgumentException When required named parameter is missing
+     */
+    private static function mapNamedToPositional(
+        ReflectionMethod $constructor,
+        array $params
+    ): array {
+        $positional = [];
+        $constructorParams = $constructor->getParameters();
+
+        foreach ($constructorParams as $index => $param) {
+            $name = $param->getName();
+
+            // Check if parameter was provided positionally (by index)
+            if (array_key_exists($index, $params)) {
+                $positional[$index] = $params[$index];
+            }
+            // Check if parameter was provided by name
+            elseif (array_key_exists($name, $params)) {
+                $positional[$index] = $params[$name];
+            }
+            // Check if parameter has a default value
+            elseif ($param->isDefaultValueAvailable()) {
+                $positional[$index] = $param->getDefaultValue();
+            }
+            // Check if parameter is required
+            elseif (!$param->isOptional()) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        '%s::make() missing required parameter: %s',
+                        basename(str_replace('\\', '/', static::class)),
+                        $name
+                    )
+                );
+            }
+            // else: optional parameter without default (e.g., nullable), will be handled by PHP
+        }
+
+        return $positional;
     }
 
     /**

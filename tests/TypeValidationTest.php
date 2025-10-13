@@ -142,3 +142,65 @@ test('make() union type error shows all possible types', function () {
             ->and($e->getMessage())->toContain('array given');
     }
 });
+
+test('make() should accept named parameters', function () {
+    $email = Email::make(value: 'test@example.com');
+
+    expect($email)->toBeInstanceOf(Email::class)
+        ->and((string) $email)->toBe('test@example.com');
+});
+
+test('make() should accept named parameters in any order', function () {
+    $money = Money::make(currency: 'USD', amount: 100);
+
+    expect($money)->toBeInstanceOf(Money::class)
+        ->and((string) $money)->toBe('100 USD');
+});
+
+test('make() should mix named and positional parameters', function () {
+    // First positional, rest named
+    $model = ComplexModel::make(1, name: 'Test', description: 'Desc', tags: []);
+
+    expect($model)->toBeInstanceOf(ComplexModel::class);
+});
+
+test('make() should skip optional parameters with named params', function () {
+    // Skip optional 'label' parameter
+    $value = FlexibleValue::make(value: 42);
+
+    expect($value)->toBeInstanceOf(FlexibleValue::class)
+        ->and((string) $value)->toBe('42');
+});
+
+test('make() should use default values for omitted named params', function () {
+    // FlexibleValue has label with default null
+    $value = FlexibleValue::make(value: 'test');
+
+    expect($value)->toBeInstanceOf(FlexibleValue::class);
+});
+
+test('make() should throw error for missing required named parameter', function () {
+    Money::make(amount: 100);
+})->throws(InvalidArgumentException::class, 'missing required parameter: currency');
+
+test('make() should validate types with named parameters', function () {
+    Email::make(value: 123);
+})->throws(TypeError::class, 'parameter "value" must be of type string, int given');
+
+test('make() should handle nullable types with named parameters', function () {
+    $model = ComplexModel::make(id: 1, name: 'Test', description: null, tags: []);
+
+    expect($model)->toBeInstanceOf(ComplexModel::class);
+});
+
+test('make() should handle union types with named parameters', function () {
+    $money1 = Money::make(amount: 100, currency: 'USD');
+    $money2 = Money::make(amount: 99.99, currency: 'EUR');
+
+    expect($money1)->toBeInstanceOf(Money::class)
+        ->and($money2)->toBeInstanceOf(Money::class);
+});
+
+test('make() should validate union types with named parameters', function () {
+    Money::make(amount: 'invalid', currency: 'USD');
+})->throws(TypeError::class, 'parameter "amount" must be of type int|float');
