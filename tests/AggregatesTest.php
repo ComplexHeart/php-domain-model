@@ -25,9 +25,9 @@ test('Aggregate should has identity based in identifier.', function () {
     $order2 = Order::create(1, ['id' => UUIDValue::random(), 'name' => 'Vincent Vega']);
     $order3 = Order::create(2, ['id' => UUIDValue::random(), 'name' => 'Vincent Vega']);
 
-    expect($order1->equals($order2))->toBeTrue();
-    expect($order1->equals($order3))->toBeFalse();
-    expect($order1->equals(new stdClass()))->toBeFalse();
+    expect($order1->equals($order2))->toBeTrue()
+        ->and($order1->equals($order3))->toBeFalse()
+        ->and($order1->equals(new stdClass()))->toBeFalse();
 })
     ->group('Unit');
 

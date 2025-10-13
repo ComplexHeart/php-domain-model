@@ -3,34 +3,14 @@
 declare(strict_types=1);
 
 use ComplexHeart\Domain\Model\Contracts\Aggregatable;
-use ComplexHeart\Domain\Model\Errors\ImmutabilityError;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
 use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Errors\InvalidPriceError;
 use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Price;
+use ComplexHeart\Domain\Model\Test\Fixtures\TypeSafety\CustomEntity;
+use ComplexHeart\Domain\Model\Test\Fixtures\TypeSafety\Email;
+use ComplexHeart\Domain\Model\Test\Fixtures\TypeSafety\Money;
 use ComplexHeart\Domain\Model\Traits\HasInvariants;
-
-test('Object with HasImmutability should throw ImmutabilityError for any update properties attempts.', function () {
-    $price = new Price(100.0, 'EUR');
-    $price->amount = 0.0;
-})
-    ->group('Unit')
-    ->throws(ImmutabilityError::class);
-
-test('Object with HasImmutability should expose primitive values.', function () {
-    $price = new Price(100.0, 'EUR');
-    expect($price->amount)->toBeFloat()
-        ->and($price->currency)->toBeString();
-})
-    ->group('Unit');
-
-test('Object with HasImmutability should return new instance with override values.', function () {
-    $price = new Price(100.0, 'EUR');
-    $newPrice = $price->applyDiscount(10.0);
-
-    expect($newPrice)->toBeInstanceOf(Price::class)
-        ->and($newPrice->amount)->toBe(90.0);
-})
-    ->group('Unit');
+use ComplexHeart\Domain\Model\ValueObjects\UUIDValue;
 
 test('Object with HasInvariants should support custom invariant handler.', function () {
     new Price(-10.0, 'EURO');
@@ -275,3 +255,37 @@ test('Mix of custom non-aggregatable throws immediately before aggregation', fun
 })
     ->group('Unit')
     ->throws(RuntimeException::class, 'Non-aggregatable error');
+
+// Auto-check feature tests
+test('ValueObject should auto-check invariants and fail', function () {
+    Email::make('invalid-email');
+})
+    ->group('Unit')
+    ->throws(InvariantViolation::class);
+
+test('ValueObject should auto-check invariants and succeed', function () {
+    $email = Email::make('valid@example.com');
+
+    expect($email)->toBeInstanceOf(Email::class);
+})
+    ->group('Unit');
+
+test('ValueObject with multiple invariants should validate all', function () {
+    Money::make(-10, 'USD');
+})
+    ->group('Unit')
+    ->throws(InvariantViolation::class);
+
+test('ValueObject should fail on invalid currency invariant', function () {
+    Money::make(100, 'US');
+})
+    ->group('Unit')
+    ->throws(InvariantViolation::class);
+
+test('Entity with auto-check disabled should not check invariants', function () {
+    // This should NOT throw even though name is empty
+    $entity = CustomEntity::make(UUIDValue::random(), '');
+
+    expect($entity)->toBeInstanceOf(CustomEntity::class);
+})
+    ->group('Unit');

@@ -17,8 +17,8 @@ use ComplexHeart\Domain\Model\ValueObjects\UUIDValue;
 
 test('StringValue should create a valid StringValue Object.', function () {
     $vo = new Reference('F2022.12.01-00001');
-    expect($vo)->toEqual('F2022.12.01-00001');
-    expect((string) $vo)->toEqual('F2022.12.01-00001');
+    expect($vo)->toEqual('F2022.12.01-00001')
+        ->and((string) $vo)->toEqual('F2022.12.01-00001');
 })
     ->group('Unit');
 
@@ -245,5 +245,109 @@ test('EnumValue should create a valid EnumValue Object.', function () {
         ->and($vo->value())->toBe((string) $vo)
         ->and($vo::getLabels()[0])->toBe('ONE')
         ->and($vo::getLabels()[1])->toBe('TWO');
+})
+    ->group('Unit');
+
+// FloatValue edge cases
+test('FloatValue should handle negative values', function () {
+    $vo = new class (-3.14) extends FloatValue {
+    };
+
+    expect($vo->value())->toBe(-3.14)
+        ->and((string) $vo)->toBe('-3.14');
+})
+    ->group('Unit');
+
+test('FloatValue should handle zero', function () {
+    $vo = new class (0.0) extends FloatValue {
+    };
+
+    expect($vo->value())->toBe(0.0)
+        ->and((string) $vo)->toBe('0');
+})
+    ->group('Unit');
+
+test('FloatValue should be equal when values match', function () {
+    $class = new class (3.14) extends FloatValue {
+    };
+
+    $vo1 = $class::make(3.14);
+    $vo2 = $class::make(3.14);
+
+    expect($vo1->equals($vo2))->toBeTrue();
+})
+    ->group('Unit');
+
+// IntegerValue edge cases
+test('IntegerValue should handle zero correctly', function () {
+    $vo = new class (0) extends IntegerValue {
+    };
+
+    expect($vo->value())->toBe(0)
+        ->and((string) $vo)->toBe('0');
+})
+    ->group('Unit');
+
+test('IntegerValue should handle PHP_INT_MAX', function () {
+    $vo = new class (PHP_INT_MAX) extends IntegerValue {
+    };
+
+    expect($vo->value())->toBe(PHP_INT_MAX);
+})
+    ->group('Unit');
+
+test('IntegerValue should handle PHP_INT_MIN', function () {
+    $vo = new class (PHP_INT_MIN) extends IntegerValue {
+    };
+
+    expect($vo->value())->toBe(PHP_INT_MIN);
+})
+    ->group('Unit');
+
+// DateTimeValue edge cases
+test('DateTimeValue should create from ISO 8601 format', function () {
+    $vo = new DateTimeValue('2023-12-25T10:30:00+00:00');
+
+    expect($vo->values())->toBe(['value' => '2023-12-25T10:30:00+00:00']);
+})
+    ->group('Unit');
+
+test('DateTimeValue should handle different timezones', function () {
+    $vo1 = new DateTimeValue('2023-01-01T12:00:00+01:00');
+    $vo2 = new DateTimeValue('2023-01-01T13:00:00+02:00');
+
+    expect($vo1->values()['value'])->toBe('2023-01-01T12:00:00+01:00')
+        ->and($vo2->values()['value'])->toBe('2023-01-01T13:00:00+02:00');
+})
+    ->group('Unit');
+
+test('DateTimeValue should be equal for same datetime string', function () {
+    $vo1 = new DateTimeValue('2023-01-01T12:00:00+00:00');
+    $vo2 = new DateTimeValue('2023-01-01T12:00:00+00:00');
+
+    expect($vo1->equals($vo2))->toBeTrue();
+})
+    ->group('Unit');
+
+test('DateTimeValue should not be equal for different datetime strings', function () {
+    $vo1 = new DateTimeValue('2023-01-01T12:00:00+00:00');
+    $vo2 = new DateTimeValue('2023-01-01T13:00:00+00:00');
+
+    expect($vo1->equals($vo2))->toBeFalse();
+})
+    ->group('Unit');
+
+test('DateTimeValue should throw exception for invalid format', function () {
+    new DateTimeValue('invalid-date');
+})
+    ->throws(Exception::class)
+    ->group('Unit');
+
+test('DateTimeValue should handle edge dates', function () {
+    $vo1 = new DateTimeValue('1970-01-01T00:00:00+00:00');
+    $vo2 = new DateTimeValue('2038-01-19T03:14:07+00:00');
+
+    expect($vo1->values()['value'])->toBe('1970-01-01T00:00:00+00:00')
+        ->and($vo2->values()['value'])->toBe('2038-01-19T03:14:07+00:00');
 })
     ->group('Unit');

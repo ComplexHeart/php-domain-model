@@ -40,8 +40,8 @@
     }
   },
   "scripts": {
-    "test": "vendor/bin/pest --configuration=phpunit.xml --coverage-clover=coverage.xml --log-junit=test.xml",
-    "test-cov": "vendor/bin/pest --configuration=phpunit.xml --coverage-html=coverage",
+    "test": "vendor/bin/pest --configuration=phpunit.xml --coverage --coverage-clover=coverage.xml --log-junit=test.xml",
+    "test-cov": "vendor/bin/pest --configuration=phpunit.xml --coverage --coverage-html=coverage",
     "analyse": "vendor/bin/phpstan analyse src --no-progress --memory-limit=4G --level=8",
     "check": [
       "@analyse",
