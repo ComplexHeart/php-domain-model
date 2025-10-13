@@ -55,7 +55,7 @@ test('StringValue should throw exception on regex invariant violation.', functio
         protected string $_pattern = '[a-z]';
     };
 })
-    ->throws(InvariantViolation::class)
+    ->throws(InvalidArgumentException::class) // Non-aggregatable, thrown immediately
     ->group('Unit');
 
 test('BooleanValue should create a valid BooleanValue Object.', function () {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Traits;
 
+use ComplexHeart\Domain\Model\Contracts\Aggregatable;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
 use Throwable;
 
@@ -110,6 +111,15 @@ trait HasInvariants
         return $violations;
     }
 
+    /**
+     * Compute the invariant handler function.
+     *
+     * The handler is responsible for throwing exceptions (single or aggregated).
+     *
+     * @param  string|callable  $handlerFn
+     * @param  string  $exception
+     * @return callable
+     */
     private function computeInvariantHandler(string|callable $handlerFn, string $exception): callable
     {
         if (!is_string($handlerFn)) {
@@ -121,24 +131,45 @@ trait HasInvariants
                 $this->{$handlerFn}($violations, $exception);
             }
         : function (array $violations) use ($exception): void {
-            // Always aggregate violations for InvariantViolation
-            if ($exception === InvariantViolation::class) {
-                $messages = map(fn (Throwable $e): string => $e->getMessage(), $violations);
-                throw InvariantViolation::fromViolations(array_values($messages));
-            }
-
-            // Legacy behavior for custom exception classes
-            if (count($violations) === 1) {
-                throw array_shift($violations);
-            }
-
-            throw new $exception( // @phpstan-ignore-line
-                sprintf(
-                    "Unable to create %s due: %s",
-                    basename(str_replace('\\', '/', static::class)),
-                    implode(", ", map(fn (Throwable $e): string => $e->getMessage(), $violations)),
-                )
-            );
+            $this->throwInvariantViolations($violations, $exception);
         };
+    }
+
+    /**
+     * Throw invariant violations (single or aggregated).
+     *
+     * Responsible for all exception throwing logic:
+     * - Non-aggregatable exceptions: throw the first one immediately
+     * - Aggregatable exceptions: aggregate and throw as InvariantViolation
+     *
+     * @param array<string, Throwable> $violations
+     * @param string $exception
+     * @return void
+     * @throws Throwable
+     */
+    private function throwInvariantViolations(array $violations, string $exception): void
+    {
+        // Separate aggregatable from non-aggregatable violations
+        $aggregatable = [];
+        $nonAggregatable = [];
+
+        foreach ($violations as $key => $violation) {
+            if ($violation instanceof Aggregatable) {
+                $aggregatable[$key] = $violation;
+            } else {
+                $nonAggregatable[$key] = $violation;
+            }
+        }
+
+        // If there are non-aggregatable exceptions, throw the first one immediately
+        if (!empty($nonAggregatable)) {
+            throw array_shift($nonAggregatable);
+        }
+
+        // All violations are aggregatable - aggregate them
+        if (!empty($aggregatable)) {
+            $messages = map(fn (Throwable $e): string => $e->getMessage(), $aggregatable);
+            throw InvariantViolation::fromViolations(array_values($messages));
+        }
     }
 }

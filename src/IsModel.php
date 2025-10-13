@@ -143,7 +143,7 @@ trait IsModel
                 // Union type (e.g., int|float|string)
                 $isValid = self::validateUnionType($value, $type);
                 $expectedTypes = implode('|', array_map(
-                    fn($t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
+                    fn ($t) => $t instanceof ReflectionNamedType ? $t->getName() : 'mixed',
                     $type->getTypes()
                 ));
             } else {

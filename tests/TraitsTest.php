@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use ComplexHeart\Domain\Model\Contracts\Aggregatable;
 use ComplexHeart\Domain\Model\Errors\ImmutabilityError;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
 use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Errors\InvalidPriceError;
@@ -17,8 +18,8 @@ test('Object with HasImmutability should throw ImmutabilityError for any update 
 
 test('Object with HasImmutability should expose primitive values.', function () {
     $price = new Price(100.0, 'EUR');
-    expect($price->amount)->toBeFloat();
-    expect($price->currency)->toBeString();
+    expect($price->amount)->toBeFloat()
+        ->and($price->currency)->toBeString();
 })
     ->group('Unit');
 
@@ -26,8 +27,8 @@ test('Object with HasImmutability should return new instance with override value
     $price = new Price(100.0, 'EUR');
     $newPrice = $price->applyDiscount(10.0);
 
-    expect($newPrice)->toBeInstanceOf(Price::class);
-    expect($newPrice->amount)->toBe(90.0);
+    expect($newPrice)->toBeInstanceOf(Price::class)
+        ->and($newPrice->amount)->toBe(90.0);
 })
     ->group('Unit');
 
@@ -165,3 +166,112 @@ test('InvariantViolation::fromViolations with single violation should not show c
         ->and($exception->getMessage())->toBe('Single error message');
 })
     ->group('Unit');
+
+test('Custom non-aggregatable exception should be thrown immediately', function () {
+    new class () {
+        use HasInvariants;
+
+        public function __construct()
+        {
+            $this->check();
+        }
+
+        protected function invariantCustomError(): bool
+        {
+            throw new DomainException('Custom domain error');
+        }
+    };
+})
+    ->group('Unit')
+    ->throws(DomainException::class, 'Custom domain error');
+
+test('Custom non-aggregatable exception stops invariant checking', function () {
+    new class () {
+        use HasInvariants;
+
+        public function __construct()
+        {
+            $this->check();
+        }
+
+        protected function invariantFirstCheck(): bool
+        {
+            // This should throw immediately
+            throw new RuntimeException('First error');
+        }
+
+        protected function invariantSecondCheck(): bool
+        {
+            // This should NEVER be reached
+            throw new DomainException('Second error - should not be reached');
+        }
+    };
+})
+    ->group('Unit')
+    ->throws(RuntimeException::class, 'First error');
+
+test('Custom aggregatable exception should be aggregated', function () {
+    try {
+        new class () {
+            use HasInvariants;
+
+            public function __construct()
+            {
+                $this->check();
+            }
+
+            protected function invariantFirst(): bool
+            {
+                // Create aggregatable exception inline
+                $exception = new class ('Aggregatable error') extends \Exception implements Aggregatable {};
+                throw $exception;
+            }
+
+            protected function invariantSecond(): bool
+            {
+                return false; // Regular InvariantViolation
+            }
+        };
+    } catch (InvariantViolation $e) {
+        expect($e->hasMultipleViolations())->toBeTrue()
+            ->and($e->getViolationCount())->toBe(2)
+            ->and($e->getViolations())->toContain('Aggregatable error')
+            ->and($e->getViolations())->toContain('second');
+    }
+})
+    ->group('Unit');
+
+test('InvariantViolation implements Aggregatable', function () {
+    $exception = InvariantViolation::fromViolations(['Test']);
+
+    expect($exception)->toBeInstanceOf(Aggregatable::class);
+})
+    ->group('Unit');
+
+test('Mix of custom non-aggregatable throws immediately before aggregation', function () {
+    new class () {
+        use HasInvariants;
+
+        public function __construct()
+        {
+            $this->check();
+        }
+
+        protected function invariantFirstAggregatable(): bool
+        {
+            return false; // InvariantViolation
+        }
+
+        protected function invariantCustomNonAggregatable(): bool
+        {
+            throw new RuntimeException('Non-aggregatable error');
+        }
+
+        protected function invariantThirdAggregatable(): bool
+        {
+            return false; // Should not be reached
+        }
+    };
+})
+    ->group('Unit')
+    ->throws(RuntimeException::class, 'Non-aggregatable error');

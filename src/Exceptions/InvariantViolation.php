@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Exceptions;
 
+use ComplexHeart\Domain\Model\Contracts\Aggregatable;
 use Exception;
 
 /**
  * Class InvariantViolation
  *
- * Exception thrown when one or more invariants are violated.
- *
  * @author Unay Santisteban <usantisteban@othercode.io>
  * @package ComplexHeart\Domain\Model\Exceptions
  */
-class InvariantViolation extends Exception
+class InvariantViolation extends Exception implements Aggregatable
 {
     /**
      * @var array<int, string> List of all violation messages
