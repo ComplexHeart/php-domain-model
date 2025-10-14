@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Traits;
 
-use ComplexHeart\Domain\Contracts\ServiceBus\Event;
-use ComplexHeart\Domain\Contracts\ServiceBus\EventBus;
+use ComplexHeart\Domain\Contracts\Events\Event;
+use ComplexHeart\Domain\Contracts\Events\EventBus;
 
 /**
  * Trait HasDomainEvents
