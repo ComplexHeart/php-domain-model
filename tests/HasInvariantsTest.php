@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use ComplexHeart\Domain\Model\Contracts\Aggregatable;
+use ComplexHeart\Domain\Model\Exceptions\Contracts\Aggregatable;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
 use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Errors\InvalidPriceError;
 use ComplexHeart\Domain\Model\Test\Fixtures\OrderManagement\Domain\Price;
@@ -57,7 +57,7 @@ test('Object with HasInvariants should throw exception with list of exceptions',
     };
 })
     ->group('Unit')
-    ->throws(InvariantViolation::class, 'Multiple invariant violations (2)');
+    ->throws(InvariantViolation::class, 'Multiple errors (2)');
 
 test('InvariantViolation should support multiple violations aggregation', function () {
     try {
@@ -85,18 +85,18 @@ test('InvariantViolation should support multiple violations aggregation', functi
             }
         };
     } catch (InvariantViolation $e) {
-        expect($e->hasMultipleViolations())->toBeTrue()
-            ->and($e->getViolationCount())->toBe(3)
-            ->and($e->getViolations())->toHaveCount(3)
-            ->and($e->getViolations())->toContain('always fail one')
-            ->and($e->getViolations())->toContain('always fail two')
-            ->and($e->getViolations())->toContain('always fail three')
-            ->and($e->getMessage())->toContain('Multiple invariant violations (3)');
+        expect($e->hasMultipleErrors())->toBeTrue()
+            ->and($e->getErrorCount())->toBe(3)
+            ->and($e->getErrors())->toHaveCount(3)
+            ->and($e->getMessage())->toContain('Multiple errors (3)')
+            ->and($e->getErrors()[0]->getMessage())->toContain('always fail one')
+            ->and($e->getErrors()[1]->getMessage())->toContain('always fail two')
+            ->and($e->getErrors()[2]->getMessage())->toContain('always fail three');
     }
 })
     ->group('Unit');
 
-test('InvariantViolation::fromViolations should handle single violation cleanly', function () {
+test('InvariantViolation::fromErrors should handle single error cleanly', function () {
     try {
         new class () {
             use HasInvariants;
@@ -112,37 +112,41 @@ test('InvariantViolation::fromViolations should handle single violation cleanly'
             }
         };
     } catch (InvariantViolation $e) {
-        expect($e->hasMultipleViolations())->toBeFalse()
-            ->and($e->getViolationCount())->toBe(1)
-            ->and($e->getViolations())->toBe(['single failure'])
+        expect($e->hasMultipleErrors())->toBeFalse()
+            ->and($e->getErrorCount())->toBe(1)
+            ->and($e->getErrors()[0]->getMessage())->toBe('single failure')
             ->and($e->getMessage())->toBe('single failure')
-            ->and($e->getMessage())->not->toContain('Multiple invariant violations');
+            ->and($e->getMessage())->not->toContain('Multiple errors');
     }
 })
     ->group('Unit');
 
-test('InvariantViolation::fromViolations should format multiple violations', function () {
-    $violations = ['First error', 'Second error', 'Third error'];
-    $exception = InvariantViolation::fromViolations($violations);
+test('InvariantViolation::fromErrors should format multiple errors', function () {
+    $errors = [
+        new InvariantViolation('First error'),
+        new InvariantViolation('Second error'),
+        new InvariantViolation('Third error')
+    ];
+    $exception = InvariantViolation::fromErrors($errors);
 
     expect($exception)->toBeInstanceOf(InvariantViolation::class)
-        ->and($exception->hasMultipleViolations())->toBeTrue()
-        ->and($exception->getViolationCount())->toBe(3)
-        ->and($exception->getViolations())->toBe($violations)
-        ->and($exception->getMessage())->toContain('Multiple invariant violations (3)')
+        ->and($exception->hasMultipleErrors())->toBeTrue()
+        ->and($exception->getErrorCount())->toBe(3)
+        ->and($exception->getErrors())->toBe($errors)
+        ->and($exception->getMessage())->toContain('Multiple errors (3)')
         ->and($exception->getMessage())->toContain('First error')
         ->and($exception->getMessage())->toContain('Second error')
         ->and($exception->getMessage())->toContain('Third error');
 })
     ->group('Unit');
 
-test('InvariantViolation::fromViolations with single violation should not show count', function () {
-    $exception = InvariantViolation::fromViolations(['Single error message']);
+test('InvariantViolation::fromErrors with single error should not show count', function () {
+    $exception = InvariantViolation::fromErrors([new InvariantViolation('Single error message')]);
 
     expect($exception)->toBeInstanceOf(InvariantViolation::class)
-        ->and($exception->hasMultipleViolations())->toBeFalse()
-        ->and($exception->getViolationCount())->toBe(1)
-        ->and($exception->getViolations())->toBe(['Single error message'])
+        ->and($exception->hasMultipleErrors())->toBeFalse()
+        ->and($exception->getErrorCount())->toBe(1)
+        ->and($exception->getErrors()[0]->getMessage())->toBe('Single error message')
         ->and($exception->getMessage())->toBe('Single error message');
 })
     ->group('Unit');
@@ -213,16 +217,16 @@ test('Custom aggregatable exception should be aggregated', function () {
             }
         };
     } catch (InvariantViolation $e) {
-        expect($e->hasMultipleViolations())->toBeTrue()
-            ->and($e->getViolationCount())->toBe(2)
-            ->and($e->getViolations())->toContain('Aggregatable error')
-            ->and($e->getViolations())->toContain('second');
+        expect($e->hasMultipleErrors())->toBeTrue()
+            ->and($e->getErrorCount())->toBe(2)
+            ->and($e->getErrors()[0]->getMessage())->toContain('Aggregatable error')
+            ->and($e->getErrors()[1]->getMessage())->toContain('second');
     }
 })
     ->group('Unit');
 
 test('InvariantViolation implements Aggregatable', function () {
-    $exception = InvariantViolation::fromViolations(['Test']);
+    $exception = InvariantViolation::fromErrors([new InvariantViolation('Test')]);
 
     expect($exception)->toBeInstanceOf(Aggregatable::class);
 })

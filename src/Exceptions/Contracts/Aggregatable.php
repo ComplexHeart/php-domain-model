@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace ComplexHeart\Domain\Model\Contracts;
+namespace ComplexHeart\Domain\Model\Exceptions\Contracts;
 
 /**
  * Interface Aggregatable
  *
- * Marker interface for exceptions that can be aggregated during invariant validation.
+ * Marker interface for exceptions/errors that can be aggregated during invariant validation.
  *
- * Exceptions implementing this interface will be collected and aggregated when
+ * Exceptions/Errors implementing this interface will be collected and aggregated when
  * multiple invariants fail. Exceptions NOT implementing this interface will be
  * thrown immediately, stopping invariant checking.
  *
