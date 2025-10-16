@@ -41,7 +41,6 @@
   },
   "scripts": {
     "test": "vendor/bin/pest --configuration=phpunit.xml --coverage --coverage-clover=coverage.xml --log-junit=test.xml",
-    "test-cov": "vendor/bin/pest --configuration=phpunit.xml --coverage --coverage-html=coverage",
     "analyse": "vendor/bin/phpstan analyse --no-progress --memory-limit=4G",
     "pint-test": "vendor/bin/pint --preset=psr12 --test",
     "pint": "vendor/bin/pint --preset=psr12"

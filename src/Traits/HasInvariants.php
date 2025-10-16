@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace ComplexHeart\Domain\Model\Traits;
 
-use ComplexHeart\Domain\Model\Contracts\Aggregatable;
+use ComplexHeart\Domain\Model\Exceptions\Contracts\Aggregatable;
+use ComplexHeart\Domain\Model\Exceptions\Contracts\AggregatesErrors;
 use ComplexHeart\Domain\Model\Exceptions\InvariantViolation;
 use Throwable;
-
-use function Lambdish\Phunctional\map;
 
 /**
  * Trait HasInvariants
@@ -139,8 +138,9 @@ trait HasInvariants
      * Throw invariant violations (single or aggregated).
      *
      * Responsible for all exception throwing logic:
-     * - Non-aggregatable exceptions: throw the first one immediately
-     * - Aggregatable exceptions: aggregate and throw as InvariantViolation
+     * - If $exception class doesn't support aggregation: throw first violation immediately
+     * - If individual violations are non-aggregatable: throw the first one immediately
+     * - If all conditions pass: aggregate violations using $exception class
      *
      * @param array<string, Throwable> $violations
      * @param string $exception
@@ -149,6 +149,12 @@ trait HasInvariants
      */
     private function throwInvariantViolations(array $violations, string $exception): void
     {
+        // Early check: Does the exception class support aggregation?
+        if (!is_subclass_of($exception, AggregatesErrors::class)) {
+            // @phpstan-ignore-next-line (array_shift always returns Throwable from non-empty violations array)
+            throw array_shift($violations);
+        }
+
         // Separate aggregatable from non-aggregatable violations
         $aggregatable = [];
         $nonAggregatable = [];
@@ -163,13 +169,14 @@ trait HasInvariants
 
         // If there are non-aggregatable exceptions, throw the first one immediately
         if (!empty($nonAggregatable)) {
+            // @phpstan-ignore-next-line (array_shift always returns Throwable from non-empty array)
             throw array_shift($nonAggregatable);
         }
 
-        // All violations are aggregatable - aggregate them
+        // All violations are aggregatable - aggregate them using the provided exception class
         if (!empty($aggregatable)) {
-            $messages = map(fn (Throwable $e): string => $e->getMessage(), $aggregatable);
-            throw InvariantViolation::fromViolations(array_values($messages));
+            // @phpstan-ignore-next-line (fromErrors returns Throwable instance implementing AggregatesErrors)
+            throw $exception::fromErrors(array_values($aggregatable));
         }
     }
 }
