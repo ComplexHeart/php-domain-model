@@ -2,7 +2,7 @@
   "name": "complex-heart/domain-model",
   "description": "Domain model toolset to properly build Value Objects, Entities and Aggregates.",
   "type": "library",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "authors": [
     {
       "name": "Unay Santisteban",
