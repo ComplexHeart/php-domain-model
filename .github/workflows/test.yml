@@ -68,7 +68,7 @@ jobs:
         continue-on-error: true
 
   test:
-    name: Test (PHP ${{ matrix.php-version }})
+    name: Test (PHP ${{ matrix.php-version }}, Illuminate ${{ matrix.illuminate }})
     runs-on: ubuntu-latest
     needs: [lint]
 
@@ -76,6 +76,7 @@ jobs:
       fail-fast: false
       matrix:
         php-version: ["8.2", "8.3", "8.4"]
+        illuminate: ["^11.0", "^12.0"]
 
     steps:
       - name: Checkout
@@ -92,17 +93,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.composer/cache
-          key: php-${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: php-${{ matrix.php-version }}-composer-
+          key: php-${{ matrix.php-version }}-illuminate-${{ matrix.illuminate }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: php-${{ matrix.php-version }}-illuminate-${{ matrix.illuminate }}-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: |
+          composer require "illuminate/collections:${{ matrix.illuminate }}" --no-update
+          composer install --prefer-dist --no-progress
 
       - name: Run tests
         run: composer test
 
       - name: Upload coverage artifact
-        if: matrix.php-version == '8.4'
+        if: matrix.php-version == '8.4' && matrix.illuminate == '^12.0'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
