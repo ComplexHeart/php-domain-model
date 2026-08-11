@@ -76,7 +76,11 @@ jobs:
       fail-fast: false
       matrix:
         php-version: ["8.2", "8.3", "8.4"]
-        illuminate: ["^11.0", "^12.0"]
+        illuminate: ["^12.0", "^13.0"]
+        exclude:
+          # Illuminate 13 requires PHP >= 8.3
+          - php-version: "8.2"
+            illuminate: "^13.0"
 
     steps:
       - name: Checkout
@@ -105,7 +109,7 @@ jobs:
         run: composer test
 
       - name: Upload coverage artifact
-        if: matrix.php-version == '8.4' && matrix.illuminate == '^12.0'
+        if: matrix.php-version == '8.4' && matrix.illuminate == '^13.0'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
